@@ -1,9 +1,14 @@
-function connectToDatabase($host, $username, $password, $database) {
-    $conn = mysqli_connect($host, $username, $password, $database);
+<?php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASSWORD', 'root');
+define('DB_NAME', 'auction_db_test');
 
-    if (!$conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
+$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-    return $conn;
+if (!$dbc) {
+  die('Connection failed to the database ' . mysqli_connect_error());
 }
+// exit();
+// mysqli_close($dbc);
+
