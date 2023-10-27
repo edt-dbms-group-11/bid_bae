@@ -1,4 +1,4 @@
--- Drop existing tables
+-- Drop existing tables 
 DROP TABLE IF EXISTS Watchlist, Bid, Auction_Product, Item, Category, Auction, User;
 
 -- Create user table

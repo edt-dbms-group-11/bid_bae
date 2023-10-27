@@ -1,4 +1,4 @@
--- Insert into User table with hashed passwords using SHA2 fn
+-- Insert into User table with hashed passwords using SHA2 fn 
 INSERT INTO User (username, password, email, display_name, opt_in_email, balance) VALUES
     ('user1', SHA2('password1', 256), 'user1@example.com', 'User One', TRUE, 2560.00),
     ('user2', SHA2('password2', 256), 'user2@example.com', 'User Two', FALSE, 50.00),
