@@ -5,48 +5,75 @@
 
 <!-- Create auction form -->
 <form method="POST" action="process_registration.php">
-  <div class="form-group row">
-    <label for="accountType" class="col-sm-2 col-form-label text-right">Registering as a:</label>
-	<div class="col-sm-10">
-	  <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="accountType" id="accountBuyer" value="buyer" checked>
-        <label class="form-check-label" for="accountBuyer">Buyer</label>
+  <div class="px-2">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" id="email_input" name="email" placeholder="Email" oninput="checkForm()">
+      <small hidden id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Username" oninput="checkForm()">
+        <small hidden id="usernameHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="accountType" id="accountSeller" value="seller">
-        <label class="form-check-label" for="accountSeller">Seller</label>
+      <div class="form-group col-md-6">
+        <label for="display_name">Display Name</label>
+        <input type="text" class="form-control" id="display_name" name="display_name" placeholder="Display Name" oninput="checkForm()">
+        <small hidden id="dispNameHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
       </div>
-      <small id="accountTypeHelp" class="form-text-inline text-muted"><span class="text-danger">* Required.</span></small>
-	</div>
-  </div>
-  <div class="form-group row">
-    <label for="email" class="col-sm-2 col-form-label text-right">Email</label>
-	<div class="col-sm-10">
-      <input type="text" class="form-control" id="email" placeholder="Email">
-      <small id="emailHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
-	</div>
-  </div>
-  <div class="form-group row">
-    <label for="password" class="col-sm-2 col-form-label text-right">Password</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="password" placeholder="Password">
-      <small id="passwordHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password"  class="form-control" id="password_input" name="password" placeholder="Password" oninput="checkForm()">
+      <small hidden id="pwdHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    </div>
+    <div class="form-group">
+      <label for="passwordConfirmation">Password Confirmation</label>
+      <input type="password"  class="form-control" id="passwordConfirmation" name="passwordConfirmation" placeholder="Password" oninput="checkForm()">
+      <small hidden id="pwdHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    </div>
+    <div class="form-group row">
+    <div class="col-sm-4">Agree to enable email subscription</div>
+    <div class="col-sm-8">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="opt_in_email" name="opt_in_email">
+        <label class="form-check-label" for="gridCheck1">
+          Agree
+        </label>
+      </div>
     </div>
   </div>
-  <div class="form-group row">
-    <label for="passwordConfirmation" class="col-sm-2 col-form-label text-right">Repeat password</label>
-    <div class="col-sm-10">
-      <input type="password" class="form-control" id="passwordConfirmation" placeholder="Enter password again">
-      <small id="passwordConfirmationHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
+    <div class="form-group row px-3">
+      <button id="submitBtn" type="submit" class="btn btn-primary form-control">Register</button>
     </div>
-  </div>
-  <div class="form-group row">
-    <button type="submit" class="btn btn-primary form-control">Register</button>
   </div>
 </form>
 
-<div class="text-center">Already have an account? <a href="" data-toggle="modal" data-target="#loginModal">Login</a>
-
-</div>
+<div class="text-center">Already have an account? <a href="" data-toggle="modal" data-target="#loginModal">Login</a></div>
 
 <?php include_once("footer.php")?>
+
+<script type="text/javascript">
+
+  document.addEventListener('DOMContentLoaded', function () {
+    checkForm();
+  });
+
+  function validateMatchPassword() {
+    let password = document.getElementById("password_input").value;
+    let confirmPassword = document.getElementById("passwordConfirmation").value;
+    return password === confirmPassword
+  }
+
+  function checkForm() {    
+    if (document.getElementById("email_input").value && document.getElementById("username").value 
+      && document.getElementById("display_name").value && document.getElementById("password_input").value
+        && document.getElementById("passwordConfirmation").value && validateMatchPassword()) {
+          document.getElementById("submitBtn").disabled = false;
+    } else {
+      document.getElementById("submitBtn").disabled = true;
+    }
+  }
+</script>
