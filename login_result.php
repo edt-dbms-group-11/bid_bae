@@ -1,18 +1,31 @@
 <?php
+  include_once('database.php');
 
-// TODO: Extract $_POST variables, check they're OK, and attempt to login.
-// Notify user of success/failure and redirect/give navigation options.
+  $email_input=$_POST['email'];
+  $password_input=$_POST['password']; 
+  session_start();
 
-// For now, I will just set session variables and redirect.
+  if (!$email_input) {
+    echo('Please enter your email');
+  } elseif (!$password_input) {
+    echo('Please enter your password');
+  } elseif (isset($email_input) && isset($password_input)) {
+    $query = "SELECT * FROM user WHERE email='$email_input' and password=SHA('$password_input')";
+    $result = mysqli_query($connection,$query);
+    $row = mysqli_fetch_array($result);
 
-session_start();
-$_SESSION['logged_in'] = true;
-$_SESSION['username'] = "test";
-$_SESSION['account_type'] = "buyer";
+    if ($row) {
+      echo('<div class="text-center">You are now logged in! You will be redirected shortly.</div>');
 
-echo('<div class="text-center">You are now logged in! You will be redirected shortly.</div>');
+      $_SESSION['is_logged_in'] = true;
+      $_SESSION['username'] = $row[1];
+      $_SESSION['display_name'] = $row[4];
+      $_SESSION['id'] = $row[0];
+    } else {
+      echo('Wrong email or password. Please try again.');
+      $_SESSION['is_logged_in'] = false;
+    }
+  }
 
-// Redirect to index after 5 seconds
-header("refresh:5;url=index.php");
-
+  header("refresh:3;url=index.php");
 ?>
