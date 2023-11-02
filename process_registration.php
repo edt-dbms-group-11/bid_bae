@@ -7,7 +7,7 @@
   $email=$_POST['email'];
   $username = $_POST['username'];
   $display_name = $_POST['display_name'];
-  $opt_in_email = $_POST['opt_in_email'] === 'on' || false;
+  $opt_in_email = ($_POST['opt_in_email'] === 'on') ? 1 : 0;
   $password=$_POST['password'];
   // $password_confirmation='passwordConfirmation';
 
@@ -33,15 +33,18 @@
 
   $query_register = "INSERT INTO User(`username`, `password`, `email`, `display_name`, `opt_in_email`, `balance`) VALUES ('$username', SHA('$password'),'$email','$display_name', $opt_in_email, 0)";
   $result_register = mysqli_query($connection, $query_register);
-  $query_id = "SELECT * FROM User WHERE username=(SELECT MAX(id) FROM User)";
-  $result_id = mysqli_query($connection, $query_id);
-  $userid = mysqli_fetch_array($result_id)['id'];
+  $query_id = "SELECT * FROM User WHERE username='$username'";
+  $result = mysqli_query($connection, $query_id);
+  if (!$result) {
+    die('Invalid query: ' . mysqli_error($connection));
+  }
+  $row = mysqli_fetch_array($result);
 
   // Login after registration
   $_SESSION['is_logged_in'] = true;
   $_SESSION['username'] = $username;
   $_SESSION['display_name'] = $display_name;
-  $_SESSION['id'] = $userid;
+  $_SESSION['id'] = $row[0];
   $_SESSION['email']= $email;
 
   echo('<div class="text-center">You\'re all set! You will be redirected shortly.</div>');
