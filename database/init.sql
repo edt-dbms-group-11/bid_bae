@@ -55,8 +55,10 @@ CREATE TABLE IF NOT EXISTS Item (
     description VARCHAR(255) NOT NULL,
     image_url VARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
+    user_id INT NOT NULL,
     is_available BOOLEAN NOT NULL DEFAULT true, -- Added column for availability
     PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES Category(id) ON DELETE CASCADE
 );
 

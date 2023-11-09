@@ -46,7 +46,6 @@ INSERT INTO Item (name, description, image_url, category_id, is_available) VALUE
     ('Leather Jacket', 'Stylish leather jacket for the fashion-savvy', 'https://example.com/leather-jacket.jpg', 2, true),
     ('Vintage Record Player', 'Retro record player for vinyl enthusiasts', 'https://example.com/record-player.jpg', 3, true);
 
-
 -- Insert into Watchlist table
 INSERT INTO Watchlist (user_id, auction_id) VALUES
     (1, 1),

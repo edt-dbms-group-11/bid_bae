@@ -48,7 +48,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
                       </div>
                   </div>";
                 } else {
-                    echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
+                  echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
                 }
                 ?>
             </li>
@@ -60,6 +60,17 @@ if (!isset($_SESSION) || $_SESSION == null) {
                 <a class="nav-link" href="browse.php">Browse</a>
             </li>
         </ul>
+        <?php
+          if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+            echo '<ul class="navbar-nav align-middle">
+                    <li class="nav-item mx-1">
+                        <a class="nav-link" href="item_list.php">My Products</a>
+                    </li>
+                  </ul>';
+          } else {
+            echo "<div></div>";
+          }
+        ?>
     </nav>
 
     <!-- Login modal -->
