@@ -36,15 +36,15 @@ INSERT INTO Category (name, description) VALUES
     ('Sports & Outdoors', 'Sports equipment and outdoor gear');
 
 -- Insert into Item table
-INSERT INTO Item (name, description, image_url, category_id, is_available) VALUES
-    ('iPhone 13 Pro', 'Latest iPhone model with advanced features', 'https://example.com/iphone13.jpg', 1, true),
-    ('Designer Handbag', 'Luxury handbag from a top designer brand', 'https://example.com/designer-handbag.jpg', 2, true),
-    ('Antique Oak Dining Table', 'Vintage dining table with intricate carvings', 'https://example.com/dining-table.jpg', 3, true),
-    ('The Great Gatsby', 'F. Scott Fitzgerald''s classic novel', 'https://example.com/great-gatsby.jpg', 4, 1, true),
-    ('Mountain Bike', 'High-performance mountain bike for outdoor adventures', 'https://example.com/mountain-bike.jpg', 5, true),
-    ('Smart TV', 'Large-screen smart TV with 4K resolution', 'https://example.com/smart-tv.jpg', 1, true),
-    ('Leather Jacket', 'Stylish leather jacket for the fashion-savvy', 'https://example.com/leather-jacket.jpg', 2, true),
-    ('Vintage Record Player', 'Retro record player for vinyl enthusiasts', 'https://example.com/record-player.jpg', 3, true);
+INSERT INTO Item (name, description, image_url, category_id, user_id, is_available) VALUES
+    ('iPhone 13 Pro', 'Latest iPhone model with advanced features', 'https://example.com/iphone13.jpg', 1, 1, true),
+    ('Designer Handbag', 'Luxury handbag from a top designer brand', 'https://example.com/designer-handbag.jpg', 2, 2, true),
+    ('Antique Oak Dining Table', 'Vintage dining table with intricate carvings', 'https://example.com/dining-table.jpg', 3, 3, true),
+    ('The Great Gatsby', 'F. Scott Fitzgerald''s classic novel', 'https://example.com/great-gatsby.jpg', 4, 4, true),
+    ('Mountain Bike', 'High-performance mountain bike for outdoor adventures', 'https://example.com/mountain-bike.jpg', 5, 5, true),
+    ('Smart TV', 'Large-screen smart TV with 4K resolution', 'https://example.com/smart-tv.jpg', 1, 5, true),
+    ('Leather Jacket', 'Stylish leather jacket for the fashion-savvy', 'https://example.com/leather-jacket.jpg', 2, 4, true),
+    ('Vintage Record Player', 'Retro record player for vinyl enthusiasts', 'https://example.com/record-player.jpg', 3, 3, true);
 
 -- Insert into Watchlist table
 INSERT INTO Watchlist (user_id, auction_id) VALUES
