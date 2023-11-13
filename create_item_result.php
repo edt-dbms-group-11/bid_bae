@@ -1,15 +1,11 @@
 <?php include_once("create_item.php")?>
+<?php include_once("header.php")?>
+<?php include_once('database.php') ?>
 <?php include_once("database_functions.php")?>
 
 <div class="container my-5">
 
 <?php
-$conn = new mysqli("localhost", "root", "", "auction_system");
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
 
     function test_input($data) {
         $data = trim($data);
@@ -17,20 +13,21 @@ $conn = new mysqli("localhost", "root", "", "auction_system");
         $data = htmlspecialchars($data);
         return $data;
       }
+      
+      session_start();
+      if (!isset($_SESSION) || $_SESSION == null) {
+        echo('<div class="text-center">You\'re not logged in. Please re-login if this was a mistake</div>');
+        header('refresh:3;url=browse.php');
+      }
+    
+      $user_id = $_SESSION['id'];
 
     if (isset($_POST["itemsubmit"])) {
-        $username = $itemTitle = $itemDesc = $imageurl = $category_n = "";
+        $itemTitle = $itemDesc = $imageurl = $category_n = "";
     // collect value of input field
 
 
     $itemDesc = $_POST['itemDesc'];
-
-    if (empty($_POST['username'])) {
-        $usernameErr = "Username is required";
-        //echo "<script>alert('$usernameErr')</script>";
-      } else {
-        $username = test_input($_POST["username"]);
-      }
     
       if (empty($_POST["itemTitle"])) {
         $itemErr = "Item Name is required";
@@ -54,44 +51,19 @@ $conn = new mysqli("localhost", "root", "", "auction_system");
       }
     
       if (!empty($username) & !empty($itemTitle) & !empty($category_n) & !empty($imageurl)){
-    $sql = "INSERT INTO item (username,name,description,category_id,image_url) values('$username','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
+    $sql = "INSERT INTO item (user_id,name,description,category_id,image_url) values('$user_id','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
       
-    if(mysqli_query($conn,$sql))
+    if(mysqli_query($connection,$sql))
     {
         echo "<script>alert('new record inserted')</script>";
-        //header("Location: create_item_success.php");
         echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
-        //echo('<div class="text-center">Item successfully created! <a href="FIXME">View your new listing.</a></div>');
     }
     else{
-        echo "error:" .mysqli_error($conn);
+        echo "error:" .mysqli_error($connection);
     }
-    mysqli_close($conn);
+    mysqli_close($connection);
     }
 }   
-
-// Closing the connection.
-// This function takes the form data and adds the new auction to the database.
-
-/* TODO #1: Connect to MySQL database (perhaps by requiring a file that
-            already does this). */
-
-
-/* TODO #2: Extract form data into variables. Because the form was a 'post'
-            form, its data can be accessed via $POST['auctionTitle'], 
-            $POST['auctionDetails'], etc. Perform checking on the data to
-            make sure it can be inserted into the database. If there is an
-            issue, give some semi-helpful feedback to user. */
-
-
-/* TODO #3: If everything looks good, make the appropriate call to insert
-            data into the database. */
-            
-
-// If all is successful, let user know.
-
-
-
 ?>
 </div>
 <?php include_once("footer.php")?>
