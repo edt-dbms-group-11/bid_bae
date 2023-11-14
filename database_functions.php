@@ -3,7 +3,6 @@
 <?php
 function getCategoriesFromDatabase()
 {
-    
     $sql = "SELECT id, name FROM category";
     global $connection;
     $result = $connection->query($sql);
@@ -13,7 +12,6 @@ function getCategoriesFromDatabase()
         while ($row = $result->fetch_assoc()) {
             $categories[] = $row;
         }
-
         // $connection->close();
 
         return $categories;

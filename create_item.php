@@ -1,15 +1,7 @@
 <?php include_once("header.php")?>
 <?php include_once('database.php') ?>
 <?php include_once("database_functions.php")?>
-<?php
-/* <?php include_once("header.php")?>(Uncomment this block to redirect people without selling privileges away from this page)
-  // If user is not logged in or not a seller, they should not be able to
-  // use this page.
-  if (!isset($_SESSION['account_type']) || $_SESSION['account_type'] != 'seller') {
-    header('Location: browse.php');
-  }
-*/
-?>
+
 <div class="container">
 <div style="max-width: 800px; margin: 10px auto">
   <h2 class="my-3">Create new item</h2>
