@@ -24,33 +24,31 @@
 
     if (isset($_POST["itemsubmit"])) {
         $itemTitle = $itemDesc = $imageurl = $category_n = "";
-    // collect value of input field
-
 
     $itemDesc = $_POST['itemDesc'];
     
       if (empty($_POST["itemTitle"])) {
         $itemErr = "Item Name is required";
-        //echo "<script>alert('$itemErr')</script>";
+        echo "<script>alert('$itemErr')</script>";
       } else {
         $itemTitle = test_input($_POST["itemTitle"]);
       }
     
       if (empty($_POST["auctionCategory"])) {
         $categoryErr = "Category is required";
-        //echo "<script>alert('$categoryErr')</script>";
+        echo "<script>alert('$categoryErr')</script>";
       } else {
         $category_n = test_input($_POST["auctionCategory"]);
       }
     
       if ((empty($_POST["imageurl"])) or (!filter_var($_POST["imageurl"], FILTER_VALIDATE_URL) === true)) {
         $imageErr = "Valid Image URL is required";
-        //echo "<script>alert('$imageErr')</script>";
+        echo "<script>alert('$imageErr')</script>";
       } else {
         $imageurl = test_input($_POST["imageurl"]);
       }
     
-      if (!empty($username) & !empty($itemTitle) & !empty($category_n) & !empty($imageurl)){
+      if (!empty($username) && !empty($itemTitle) && !empty($category_n) && !empty($imageurl)){
     $sql = "INSERT INTO item (user_id,name,description,category_id,image_url) values('$user_id','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
       
     if(mysqli_query($connection,$sql))
@@ -61,7 +59,6 @@
     else{
         echo "error:" .mysqli_error($connection);
     }
-    mysqli_close($connection);
     }
 }   
 ?>

@@ -1,4 +1,4 @@
-
-
-<div class="text-center">Item successfully created! <a href="FIXME">View your new listing.</a></div>
-<!--echo '<div class="text-center">Item successfully created! <a href="FIXME">View your new listing.</a></div> -->
+<?php
+echo('<div class="text-center">Item successfully created!</div>'); 
+header("refresh:3;url=url_to_listing_page.php");
+?>
