@@ -6,7 +6,7 @@
   include_once('database.php');
 
   $user_id = $_SESSION['id'];
-  $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Category.name as category_name FROM Item JOIN Category ON Item.category_id = Category.id WHERE user_id = $user_id AND is_available = TRUE;";
+  $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name FROM Item JOIN Category ON Item.category_id = Category.id WHERE user_id = $user_id;";
   $result_item = mysqli_query($connection, $items_query);
   if (!$result_item) {
     die('Invalid query: ' . mysqli_error($connection));
@@ -38,17 +38,21 @@
     echo '<div class="card-body d-flex flex-column">';
     echo '<h5 class="card-title">' . $item[1] . '</h5>';
     echo '<p class="card-text text-truncate">' . $item[2] . '</p>';
-    echo '<span class="card-text badge badge-light w-50 py-2">' . $item[4] . '</span>';
+    echo '<span class="card-text badge badge-light w-50 py-2">' . $item[5] . '</span>';
     echo '<hr class="w-100 mt-auto "></hr`>';
-    echo '<button class="w-50 ml-auto btn btn-warning" onclick="removeItem(' . $item[0] . ')">Remove Item</button>';
+
+    if ($item[4] == true) { // item.is_available
+        echo '<button class="w-50 ml-auto btn btn-warning" onclick="removeItem(' . $item[0] . ')">Remove Item</button>';
+    } else {
+        echo '<button class="w-50 ml-auto btn btn-danger" disabled>In Auction / Sold</button>';
+    }
+
     echo '</div>';
     echo '</div>';
     echo '</div>';
   }
   echo '</div>';
 
-    // pagination
-    echo '<nav aria-label="Page navigation example">';
     echo '<ul class="pagination py-4">';
     for ($i = 1; $i <= $total_pages; $i++) {
         echo '<li class="page-item' . ($i == $current_page ? ' active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
