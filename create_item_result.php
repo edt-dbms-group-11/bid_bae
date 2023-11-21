@@ -6,13 +6,6 @@
 <div class="container my-5">
 
 <?php
-
-    function test_input($data) {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-      }
       
       session_start();
       if (!isset($_SESSION) || $_SESSION == null) {
@@ -31,34 +24,25 @@
         $itemErr = "Item Name is required";
         echo "<script>alert('$itemErr')</script>";
       } else {
-        $itemTitle = test_input($_POST["itemTitle"]);
+        $itemTitle = $_POST["itemTitle"];
       }
     
       if (empty($_POST["auctionCategory"])) {
         $categoryErr = "Category is required";
         echo "<script>alert('$categoryErr')</script>";
       } else {
-        $category_n = test_input($_POST["auctionCategory"]);
+        $category_n = $_POST["auctionCategory"];
       }
     
       if ((empty($_POST["imageurl"])) or (!filter_var($_POST["imageurl"], FILTER_VALIDATE_URL) === true)) {
         $imageErr = "Valid Image URL is required";
         echo "<script>alert('$imageErr')</script>";
       } else {
-        $imageurl = test_input($_POST["imageurl"]);
+        $imageurl = $_POST["imageurl"];
       }
     
       if (!empty($username) && !empty($itemTitle) && !empty($category_n) && !empty($imageurl)){
-    $sql = "INSERT INTO item (user_id,name,description,category_id,image_url) values('$user_id','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
-      
-    if(mysqli_query($connection,$sql))
-    {
-        echo "<script>alert('new record inserted')</script>";
-        echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
-    }
-    else{
-        echo "error:" .mysqli_error($connection);
-    }
+           createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl);
     }
 }   
 ?>
