@@ -149,7 +149,7 @@
               <p class="h4">Make this yours</p>
               <div class="auction-butons-top row">
                 <div class="pl-3 form-group">
-                  <div class="input-group mb-1">
+                  <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text" id="basic-addon1">£</span>
                     </div>
@@ -170,8 +170,8 @@
               <p class="h4">Someone's bought it!</p>
               <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
             <?php endif; ?>
+            <div class="pb-2" id="bid-alert-container"></div>
           </div>
-          <div class="col-12" id="bid-alert-container"></div>
           <div class="bottom-content">
             <div class="">
               <?php
@@ -235,17 +235,12 @@
   let bidBtn = document.getElementById('btn-place-bid');
 
   function addToWatchlist(button) {
-    console.log("These print statements are helpful for debugging btw");
-
-    // This performs an asynchronous call to a PHP function using POST method.
-    // Sends item ID as an argument to that function.
     $.ajax('watchlist_funcs.php', {
       type: "POST",
-      data: {functionname: 'add_to_watchlist', arguments: [<?php echo($item_id);?>]},
+      data: {functionname: 'add_to_watchlist', arguments: [<?php echo($auction_id);?>]},
 
       success: 
         function (obj, textstatus) {
-          // Callback function for when call is successful and returns obj
           console.log("Success");
           var objT = obj.trim();
   
@@ -272,7 +267,7 @@
     // Sends item ID as an argument to that function.
     $.ajax('watchlist_funcs.php', {
       type: "POST",
-      data: {functionname: 'remove_from_watchlist', arguments: [<?php echo($item_id);?>]},
+      data: {functionname: 'remove_from_watchlist', arguments: [<?php echo($auction_id);?>]},
 
       success: 
         function (obj, textstatus) {
@@ -317,7 +312,7 @@
     onlyNum();
     let bidAmount = $('#user-bid-input').val().trim();
     let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?>;
-    let bidAlert = '<div class="badge badge-danger px-4">Bid must be higher than current bid</div>';
+    let bidAlert = '<div class="badge badge-danger px-4 py-1 mb-1">Bid must be higher than current bid</div>';
     
     if (parseInt(bidAmount) < currBid) {
       bidBtn.classList.add('disabled');
