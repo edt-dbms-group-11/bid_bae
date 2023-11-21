@@ -147,33 +147,29 @@
           </div>
           <div class="auction-buttons">
             <p class="h4">Make this yours</p>
-            <div class="auction-butons-top row d-flex">
-              <div class="col-10">
-                <div class="form-group">
-                  <div>
-                    <div class="input-group mb-1">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">£</span>
-                      </div>
-                      <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
-                      <div class="input-group-append">
-                      <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
-                    </div>
-                    <div id="bid-alert-container"></div>
-                    <div class="auction-history">
-
-                    </div>
+            <div class="auction-butons-top row">
+              <div class="pl-3 form-group">
+                <div class="input-group mb-1">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">£</span>
                   </div>
+                  <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
+                  <div class="input-group-append">
+                  <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
                 </div>
               </div>
             </div>
+            <div class="auction-history">
+              <!-- TODO: query auction bid logs -->
+            </div>
           </div>
+          <div class="col-12" id="bid-alert-container"></div>
           <div class="bottom-content">
-            <div class="row d-flex justify-content-evenly px-3">
+            <div class="px-3">
               <?php
                 /* The following watchlist functionality uses JavaScript, but could
                   just as easily use PHP as in other places in the code */
-                if ($now < $auction_end_time):
+                if ($now < $auction_end_time_converted):
               ?>
               <!-- [WIP] TODO: continue watchlist fn -->
                 <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?> >
@@ -184,16 +180,15 @@
                   <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist()">Remove watch</button>
                 </div>
               <?php endif ?>
-
             </div>
             <div class="bottom-time pt-4">
               <?php if ($now > $auction_end_time_converted): ?>
                 <div class="alert alert-warning" role="alert">
-                  This auction ended at <?php echo(date_format($auction_end_time, 'j M H:i')) ?>
+                  This auction ended at <?php echo(date_format($auction_end_time_converted, 'j M H:i')) ?>
                 </div>        
               <?php else: ?>
                 <div class="alert alert-warning" role="alert">
-                  This auction will end in <?php echo(date_format($auction_end_time, 'j M H:i') . $time_remaining) ?>
+                  This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M H:i') . $time_remaining) ?>
                 </div>  
               <?php endif ?>
             </div>
