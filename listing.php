@@ -6,8 +6,6 @@
 <?php require("utilities.php")?>
 
 <?php
-  session_start();
-
   if ($_SESSION['username'] != null) {
     $username = $_SESSION['username'];
     $display_name = $_SESSION['display_name'];
@@ -42,15 +40,17 @@
   $auction_status = $auctionData['auction_status'];
   $auction_items = $auctionData['items'];
   $auction_user_display_name = $auctionData['user_display_name'];
-  // var_dump($auction_items);
 
   // TODO(paul): move query to database fn file
   function queryAuctionDetail($connection, $auction_id) {
+    // TODO(PAUL): validate this before fetching more data
+    // $queryString = "SELECT * FROM Auctions WHERE auction_id='$auction_id'";
+
     $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
     JOIN Auction ON Auction_Product.auction_id = Auction.id
     JOIN Item ON Auction_Product.item_id = Item.id
     JOIN User ON User.id = Item.user_id
-    WHERE auction_id = '$auction_id';";
+    WHERE auction_id = $auction_id;";
 
     $auction_detail_item = mysqli_query($connection, $auction_detail_query);
     if (!$auction_detail_item) {
@@ -63,11 +63,10 @@
       $auction_detail[] = $row;
     }
     $mergedAuctions = mergeAuctionDetails($auction_detail);
-    return $mergedAuctions[1];
+    return $mergedAuctions[$auction_id];
   }
 
-  function mergeAuctionDetails($auctionDetails)
-  {
+  function mergeAuctionDetails($auctionDetails) {
       $mergedAuctions = array();
   
       foreach ($auctionDetails as $auction) {
@@ -146,83 +145,90 @@
             </div>
           </div>
           <div class="auction-buttons">
-            <p class="h4">Make this yours</p>
-            <div class="auction-butons-top row">
-              <div class="pl-3 form-group">
-                <div class="input-group mb-1">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">£</span>
+            <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
+              <p class="h4">Make this yours</p>
+              <div class="auction-butons-top row">
+                <div class="pl-3 form-group">
+                  <div class="input-group mb-1">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">£</span>
+                    </div>
+                    <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                      <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
+                    </div>
                   </div>
-                  <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
-                  <div class="input-group-append">
-                  <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
+                  <?php
+                  // Show auction history or other relevant information if needed
+                  ?>
+                  <div class="auction-history">
+                    <!-- TODO: query auction bid logs -->
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="auction-history">
-              <!-- TODO: query auction bid logs -->
-            </div>
+            <?php else: ?>
+              <p class="h4">Someone's bought it!</p>
+              <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
+            <?php endif; ?>
           </div>
           <div class="col-12" id="bid-alert-container"></div>
           <div class="bottom-content">
             <div class="">
               <?php
-                /* The following watchlist functionality uses JavaScript, but could
-                  just as easily use PHP as in other places in the code */
-                if ($now < $auction_end_time_converted):
+              /* The following watchlist functionality uses JavaScript, but could
+                just as easily use PHP as in other places in the code */
+              if ($now < $auction_end_time_converted):
               ?>
               <!-- [WIP] TODO: continue watchlist fn -->
-                <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?> >
-                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to watchlist</button>
-                </div>
-                <div id="watch_watching" <?php if (!$is_logged_in || !$watching) echo('style="display: none"');?> >
-                  <button type="button" class="btn btn-success btn-sm" disabled>Watching</button>
-                  <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist()">Remove watch</button>
-                </div>
+              <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?>>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to watchlist</button>
+              </div>
+              <div id="watch_watching" <?php if (!$is_logged_in || !$watching) echo('style="display: none"');?>>
+                <button type="button" class="btn btn-success btn-sm" disabled>Watching</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist()">Remove watch</button>
+              </div>
               <?php endif ?>
             </div>
             <div class="bottom-time pt-4">
               <?php if ($now > $auction_end_time_converted): ?>
                 <div class="alert alert-warning" role="alert">
                   This auction ended at <?php echo(date_format($auction_end_time_converted, 'j M H:i')) ?>
-                </div>        
+                </div>
               <?php else: ?>
                 <div class="alert alert-warning" role="alert">
                   This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M H:i') . $time_remaining) ?>
-                </div>  
+                </div>
               <?php endif ?>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="bottom-item-container">
-  <h4 class="my-3 lead">Items included in this auction : </h4>
-  <div class="bottom-item-container--list d-flex ">
-    <?php foreach ($auction_items as $item): ?>
-      <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
-        <div class="row g-0">
-          <div class="col-md-4">
-            <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
-          </div>
-          <div class="col-md-8 border-left">
-            <div class="card-body">
-              <h6 class=""><?= $item['item_name'] ?></h6>
-              <p class="card-text">
-                <small class="text-muted"><?= $item['description'] ?></small>
-              </p>
+    <div class="bottom-item-container">
+      <h4 class="my-3 lead">Items included in this auction : </h4>
+      <div class="bottom-item-container--list d-flex">
+        <?php foreach ($auction_items as $item): ?>
+          <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
+              </div>
+              <div class="col-md-8 border-left">
+                <div class="card-body">
+                  <h6 class=""><?= $item['item_name'] ?></h6>
+                  <p class="card-text">
+                    <small class="text-muted"><?= $item['description'] ?></small>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        <?php endforeach; ?>
       </div>
-    <?php endforeach; ?>
+    </div>
   </div>
-</div></div>
-
-
+</div>
 <?php include_once("footer.php")?>
-
 
 <script> 
   let bidInput = document.getElementById('user-bid-input');
@@ -310,7 +316,7 @@
   function onBidInput() {
     onlyNum();
     let bidAmount = $('#user-bid-input').val().trim();
-    let currBid = <?php echo($auction_current_price); ?>;
+    let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?>;
     let bidAlert = '<div class="badge badge-danger px-4">Bid must be higher than current bid</div>';
     
     if (parseInt(bidAmount) < currBid) {
