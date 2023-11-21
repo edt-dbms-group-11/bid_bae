@@ -165,7 +165,7 @@
           </div>
           <div class="col-12" id="bid-alert-container"></div>
           <div class="bottom-content">
-            <div class="px-3">
+            <div class="">
               <?php
                 /* The following watchlist functionality uses JavaScript, but could
                   just as easily use PHP as in other places in the code */
