@@ -13,10 +13,6 @@
     header('refresh:3;url=browse.php');
     }
 
-    // This function takes the form data and adds the new auction to the database.
-
-    // $mysqli = connectToDatabase();
-
     // Check if the form was submitted
     if (isset($_POST["auctionsubmit"])) {
    
@@ -39,15 +35,26 @@
         $errors[] = "Title cannot be empty.";
     }
 
-    // Check if details are not empty
-    // if (empty($details)) {
-    //     $errors[] = "Details cannot be empty.";
-    // }
+    // Validate if each item ID belongs to the user
+    foreach ($_POST['selectedItems'] as $itemId) {
+        // Query the database to check if the item belongs to the user
+        $updateAvailabilityQuery = "SELECT user_id FROM Item WHERE id = $itemId";
+        $updateAvailabilityResult = mysqli_query($connection, $updateAvailabilityQuery);
 
-    //  Validate category - you may want to check if the selected category exists in the database
-    // if (!is_numeric($category) || $category <= 0) {
-    //     $errors[] = "Invalid category.";
-    // }
+        if (!$updateAvailabilityResult) {
+            // Handle the database error (e.g., log, display an error message)
+            echo "Database error: " . mysqli_error($connection);
+            exit; // Or handle the error in a way that makes sense for your application
+        }
+
+        $row = mysqli_fetch_assoc($updateAvailabilityResult);
+
+        // Check if the item belongs to the logged-in user
+        if ($row['user_id'] != $_SESSION['id']) {
+            // Item ID does not belong to the user
+            $errors[] = "Invalid item selection.";
+        }
+    }
 
     // Check if start price is a positive number
     if (!is_numeric($startPrice) || $startPrice <= 0) {
@@ -61,6 +68,9 @@
     } elseif (!is_numeric($reservePrice) || $reservePrice <= 0) {
         // If reserve price is provided but not a positive number, show an error
         $errors[] = "Reserve price must be a positive number.";
+    } elseif ($reservePrice < $startPrice) {
+        // If reserve price is lower than start price, show an error
+        $errors[] = "Reserve price cannot be lower than the start price.";
     }
 
     // Validate end date - you may want to check if the date is in the future
@@ -103,6 +113,19 @@
             }
             // Notify the user that the auction and associated items were added successfully
             echo('<div class="text-center">Auction and associated items successfully created! <a href="FIXME">View your new listing.</a></div>');
+
+            //Update item availability in the Item table after it has successfully been added to the Auction and Auction_Product table
+            foreach ($_POST['selectedItems'] as $itemId) {
+                $updateQuery = "UPDATE Item SET is_available = 0 WHERE id = $itemId";
+                $updateResult = mysqli_query($connection, $updateQuery);
+            
+                if (!$updateResult) {
+                    // Handle the database error (e.g., log, display an error message)
+                    echo "Database error: " . mysqli_error($connection);
+                    exit; 
+                }
+            }
+            
         } else {
             // If there was an error, provide an error message
             echo('<div class="text-center text-danger">Error creating auction. Please try again.</div>');

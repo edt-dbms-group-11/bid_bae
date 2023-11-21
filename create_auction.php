@@ -1,16 +1,19 @@
-<?php include_once("header.php")?>
-<?php include_once("database.php"); ?>
-<?php include_once("database_functions.php"); ?>
+<?php 
+include_once("header.php");
+include_once("database.php"); 
+include_once("database_functions.php"); 
+?>
+
 
 <?php
 session_start();
-/* (Uncomment this block to redirect people without selling privileges away from this page)
-  // If user is not logged in or not a seller, they should not be able to
-  // use this page.
-  if (!isset($_SESSION['account_type']) || $_SESSION['account_type'] != 'seller') {
-    header('Location: browse.php');
-  }
-*/
+
+// If user is not logged in, they should not be able to use this page.
+if (!isset($_SESSION) || $_SESSION == null)  {
+  echo('<div class="text-center">You\'re not logged in. Please re-login if this was a mistake</div>');
+  header('refresh:3;url=browse.php');
+}
+
 // Assuming seller_id is stored in the session
 $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases where user_id is not set
 ?>
@@ -52,6 +55,7 @@ $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases wh
                   echo '</div>';
               }
               ?>
+              <small id="selectHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Items already listed in other auctions are not available.</small>
           </div>
         </div>
         <div class="form-group row">
@@ -76,8 +80,8 @@ $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases wh
             </select>
             <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
           </div>
-        </div> -->
-        <!-- <div class="form-group row">
+        </div>
+        <div class="form-group row">
           <label for="auctionImages" class="col-sm-2 col-form-label text-right">Item Images</label>
           <div class="col-sm-10">
             <input type="file" class="form-control-file" id="auctionImages" multiple accept="image/*">
