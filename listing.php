@@ -15,8 +15,10 @@
 
   $auction_id;
   $user_id;
+
   if (isset($_GET['auction_id'])) {
     $auction_id = $_GET['auction_id'];
+    checkValidAuctionId($connection, $auction_id);
   } else {
     echo("Invalid auction data");
     header("refresh:3;url=browse.php");
@@ -43,9 +45,6 @@
 
   // TODO(paul): move query to database fn file
   function queryAuctionDetail($connection, $auction_id) {
-    // TODO(PAUL): validate this before fetching more data
-    // $queryString = "SELECT * FROM Auctions WHERE auction_id='$auction_id'";
-
     $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
     JOIN Auction ON Auction_Product.auction_id = Auction.id
     JOIN Item ON Auction_Product.item_id = Item.id
@@ -64,6 +63,19 @@
     }
     $mergedAuctions = mergeAuctionDetails($auction_detail);
     return $mergedAuctions[$auction_id];
+  }
+
+  function checkValidAuctionId($connection, $auction_id) {
+    $auction_single_query = "SELECT * FROM Auction_Product WHERE auction_id=$auction_id";
+    $auction_detail_item = mysqli_query($connection, $auction_single_query);
+    
+    if (!$auction_detail_item || mysqli_num_rows($auction_detail_item) === 0) {
+        http_response_code(404);
+        include("404.php");
+        exit;
+    }
+
+    return true;
   }
 
   function mergeAuctionDetails($auctionDetails) {
@@ -196,7 +208,7 @@
                 </div>
               <?php else: ?>
                 <div class="alert alert-warning" role="alert">
-                  This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M H:i') . $time_remaining) ?>
+                  This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M \a\t H:i')); ?> (<?php echo $time_remaining; ?> remaining)
                 </div>
               <?php endif ?>
             </div>
@@ -311,7 +323,7 @@
   function onBidInput() {
     onlyNum();
     let bidAmount = $('#user-bid-input').val().trim();
-    let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?>;
+    let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?> || 0;
     let bidAlert = '<div class="badge badge-danger px-4 py-1 mb-1">Bid must be higher than current bid</div>';
     
     if (parseInt(bidAmount) < currBid) {
