@@ -1,6 +1,6 @@
 <?php
   include_once("database.php");
-  include_once("session_check.php")
+  include_once("session_check.php");
   session_start();
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
