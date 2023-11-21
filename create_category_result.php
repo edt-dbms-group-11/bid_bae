@@ -6,13 +6,6 @@
 <div class="container my-5">
 
 <?php
-
-    function test_input($data) {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-      }
       
       $categories = getCategoriesFromDatabase();
       
@@ -25,7 +18,7 @@
         $catErr = "Category Name is required";
         echo "<script>alert('$categErr')</script>";
       } else {
-        $categoryTitle = test_input($_POST["categoryTitle"]);
+        $categoryTitle = $_POST["categoryTitle"];
       }
     
         foreach ($categories as $category) : 
@@ -35,17 +28,8 @@
             }
         endforeach;
       
-      if (!empty($categoryTitle)){
-    $sql = "INSERT INTO category (name,description) values('$categoryTitle','$categoryDesc')";
-      
-    if(mysqli_query($connection,$sql))
-    {
-        echo "<script>alert('new record inserted')</script>";
-        echo "<script type='text/javascript'>window.top.location='./create_category_success.php';</script>"; exit;
-    }
-    else{
-        echo "error:" .mysqli_error($connection);
-    }
+    if (!empty($categoryTitle)){
+        createCategory($categoryTitle, $categoryDesc);
     } 
 }
 ?>
