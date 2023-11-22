@@ -38,16 +38,16 @@
     // Validate if each item ID belongs to the user
     foreach ($_POST['selectedItems'] as $itemId) {
         // Query the database to check if the item belongs to the user
-        $updateAvailabilityQuery = "SELECT user_id FROM Item WHERE id = $itemId";
-        $updateAvailabilityResult = mysqli_query($connection, $updateAvailabilityQuery);
+        $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
+        $validateItemResult = mysqli_query($connection, $validateItemQuery);
 
-        if (!$updateAvailabilityResult) {
+        if (!$validateItemResult) {
             // Handle the database error (e.g., log, display an error message)
             echo "Database error: " . mysqli_error($connection);
             exit; // Or handle the error in a way that makes sense for your application
         }
 
-        $row = mysqli_fetch_assoc($updateAvailabilityResult);
+        $row = mysqli_fetch_assoc($validateItemResult);
 
         // Check if the item belongs to the logged-in user
         if ($row['user_id'] != $_SESSION['id']) {
@@ -116,6 +116,25 @@
 
             //Update item availability in the Item table after it has successfully been added to the Auction and Auction_Product table
             foreach ($_POST['selectedItems'] as $itemId) {
+                // Validate if the item belongs to the current user
+                $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
+                $validateItemResult = mysqli_query($connection, $validateItemQuery);
+            
+                if (!$validateItemResult) {
+                    // Handle the database error (e.g., log, display an error message)
+                    echo "Database error: " . mysqli_error($connection);
+                    exit; 
+                }
+            
+                $itemData = mysqli_fetch_assoc($validateItemResult);
+            
+                if ($itemData['user_id'] !== $_SESSION['id']) {
+                    // Handle the case where the item doesn't belong to the current user
+                    echo "Error: The item with ID $itemId does not belong to the current user.";
+                    exit;
+                }
+            
+                // Update the item status
                 $updateQuery = "UPDATE Item SET is_available = 0 WHERE id = $itemId";
                 $updateResult = mysqli_query($connection, $updateQuery);
             
