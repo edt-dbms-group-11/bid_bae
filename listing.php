@@ -29,6 +29,7 @@
   }
 
   $auctionData = queryAuctionDetail($connection, $auction_id);
+  $auctionLogsList = queryAuctionLogs($connection, $auction_id);
 
   $auction_id = $auctionData['auction_id'];
   $auction_title = $auctionData['title'];
@@ -42,6 +43,8 @@
   $auction_status = $auctionData['auction_status'];
   $auction_items = $auctionData['items'];
   $auction_user_display_name = $auctionData['user_display_name'];
+  
+  
 
   // TODO(paul): move query to database fn file
   function queryAuctionDetail($connection, $auction_id) {
@@ -111,7 +114,37 @@
       }
   
       return $mergedAuctions;
-  }?>
+  }
+  
+  function queryAuctionLogs($connection, $auction_id) {
+    $auction_log_query = "SELECT
+                          Bid.id AS bid_id,
+                          Bid.bid_price,
+                          User.id AS user_id,
+                          User.display_name
+                          FROM
+                            Bid
+                          JOIN User ON Bid.user_id = User.id
+                          WHERE
+                            Bid.auction_id = $auction_id;";
+
+    $auction_log_items = mysqli_query($connection, $auction_log_query);
+    if (!$auction_log_items) {
+      die('Invalid query: ' . mysqli_error($connection));
+    }
+
+    $auction_logs = array();
+    
+    while ($row = mysqli_fetch_object($auction_log_items)) {
+      $auction_logs[] = $row;
+    }
+  
+    // var_dump($auction_logs);
+    return $auction_logs;
+  }
+
+  ?>
+  
 
 <?php
 
@@ -172,20 +205,14 @@
                       <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
                     </div>
                   </div>
-                  <div class="auction-history">
-                    <?php
-                    // Show auction history or other relevant information if needed
-                    ?>
-                    <!-- TODO: query auction bid logs -->
-                  </div>
                 </div>
               </div>
               <?php else: ?>
                 <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
-                    <p class="h4 py-2">You've missed the it!</p>
+                    <p class="h5 py-3">You've missed the it!</p>
                     <p>This auction ended due to lack of high-valued bids</p>
                 <?php else: ?>
-                    <p class="h4 py-2">Someone's bought it!</p>
+                    <p class="h5 py-3">Someone's bought it!</p>
                     <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
                 <?php endif; ?>
               <?php endif; ?>
@@ -243,6 +270,31 @@
               </div>
             </div>
           <?php endforeach; ?>
+        </div>
+      </div>
+      
+      <div class="auction-history flex row">
+        <div class="auction-history--list">
+          <div class="container mt-3">
+            <p class="lead text-sm">Bid History</p>
+            <table class="table table-sm table-bordered-sm">
+                <thead>
+                <tr>
+                  <th>ID </th>
+                  <th>Bid Price</th>
+                  <th>Display Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($auctionLogsList as $log): ?>
+                    <tr>
+                      <td><?= $log->bid_id ?></td>
+                      <td><?= $log->bid_price ?></td>
+                      <td><?= $log->display_name ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
       </div>
     </div>
@@ -390,3 +442,19 @@
   //   });
   // });
 </script>
+
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+  .container {
+    max-width: 800px;
+  }
+  table {
+    font-size: 14px;
+  }
+  th, td {
+    padding: 0.5rem;
+    text-align: center;
+  }
+</style>
