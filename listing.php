@@ -1,10 +1,10 @@
 <?php 
   include_once("header.php");
-  include_once("session_check.php");
   include_once("database.php");
+  include_once("bid_winner_cron.php")
 ?>
-<?php require("utilities.php")?>
 
+<?php require("utilities.php")?>
 <?php
   if ($_SESSION['username'] != null) {
     $username = $_SESSION['username'];
@@ -152,8 +152,10 @@
       <div class="auction-right align-content-around my-1 row">
         <div class="py-3 justify-content-between align-content-between ">
           <div class="auction-detail">
-            <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
-              Current bid: £<?php echo(number_format($auction_current_price, 2)) ?>
+            <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
+              <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
+                Current bid: £<?php echo(number_format($auction_current_price, 2)) ?>
+            <?php endif; ?>
             </div>
           </div>
           <div class="auction-buttons">
@@ -170,27 +172,28 @@
                       <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
                     </div>
                   </div>
-                  <?php
-                  // Show auction history or other relevant information if needed
-                  ?>
                   <div class="auction-history">
+                    <?php
+                    // Show auction history or other relevant information if needed
+                    ?>
                     <!-- TODO: query auction bid logs -->
                   </div>
                 </div>
               </div>
-            <?php else: ?>
-              <p class="h4">Someone's bought it!</p>
-              <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
-            <?php endif; ?>
+              <?php else: ?>
+                <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
+                    <p class="h4 py-2">You've missed the it!</p>
+                    <p>This auction ended due to lack of high-valued bids</p>
+                <?php else: ?>
+                    <p class="h4 py-2">Someone's bought it!</p>
+                    <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
+                <?php endif; ?>
+              <?php endif; ?>
             <div class="pb-2" id="bid-alert-container"></div>
           </div>
           <div class="bottom-content">
             <div class="">
-              <?php
-              /* The following watchlist functionality uses JavaScript, but could
-                just as easily use PHP as in other places in the code */
-              if ($now < $auction_end_time_converted):
-              ?>
+              <?php if ($now < $auction_end_time_converted): ?>
               <!-- [WIP] TODO: continue watchlist fn -->
               <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?>>
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to watchlist</button>
@@ -212,30 +215,35 @@
                 </div>
               <?php endif ?>
             </div>
+
+            <!-- TODO(paul): Remove this dummy trigger -->
+            <!-- <div class="dummy-end">
+              <button id="endAuctionButton">end this auction</button>
+            </div> -->
           </div>
         </div>
       </div>
-    </div>
-    <div class="bottom-item-container">
-      <h4 class="my-3 lead">Items included in this auction : </h4>
-      <div class="bottom-item-container--list d-flex">
-        <?php foreach ($auction_items as $item): ?>
-          <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
-              </div>
-              <div class="col-md-8 border-left">
-                <div class="card-body">
-                  <h6 class=""><?= $item['item_name'] ?></h6>
-                  <p class="card-text">
-                    <small class="text-muted"><?= $item['description'] ?></small>
-                  </p>
+      <div class="bottom-item-container">
+        <h4 class="my-3 lead">Items included in this auction : </h4>
+        <div class="bottom-item-container--list d-flex">
+          <?php foreach ($auction_items as $item): ?>
+            <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
+                </div>
+                <div class="col-md-8 border-left">
+                  <div class="card-body">
+                    <h6 class=""><?= $item['item_name'] ?></h6>
+                    <p class="card-text">
+                      <small class="text-muted"><?= $item['description'] ?></small>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
       </div>
     </div>
   </div>
@@ -369,4 +377,16 @@
     });
   }
 
+  // TODO(paul): Remove this dummy trigger
+  // document.getElementById('endAuctionButton').addEventListener('click', function() {
+  //   fetch('bid_winner_cron.php')
+  //     .then(response => response.text())
+  //     .then(data => {
+  //       // You can handle the response here if needed
+  //       console.log(data);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error:', error);
+  //   });
+  // });
 </script>
