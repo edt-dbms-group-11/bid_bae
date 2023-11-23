@@ -1,7 +1,7 @@
 <!-- Fn -->
 <?php
   
-  include_once('check_session.php');
+  include_once('session_check.php');
   include_once('header.php');
   include_once('database.php');
 
@@ -60,7 +60,7 @@
     echo '</ul>';
     echo '</nav>';
     echo '</div>';
-?>  
+?>
 
 <!-- JS -->
 <script>
