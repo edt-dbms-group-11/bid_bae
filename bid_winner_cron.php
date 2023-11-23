@@ -8,7 +8,6 @@
     $result = mysqli_query($connection, $query);
 
     if ($result) {
-      var_dump($result);
       while ($row = mysqli_fetch_assoc($result)) {
         $auction_id = $row['id'];
         $reserved_price = $row['reserved_price'];
