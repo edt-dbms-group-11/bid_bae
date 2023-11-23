@@ -48,7 +48,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
                       </div>
                   </div>";
                 } else {
-                  echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
+                    echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
                 }
                 ?>
             </li>
@@ -59,18 +59,28 @@ if (!isset($_SESSION) || $_SESSION == null) {
             <li class="nav-item mx-1">
                 <a class="nav-link" href="browse.php">Browse</a>
             </li>
-        </ul>
-        <?php
-          if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
-            echo '<ul class="navbar-nav align-middle">
-                    <li class="nav-item mx-1">
-                        <a class="nav-link" href="item_list.php">My Products</a>
+            
+            <?php
+                if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+                    echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
                     </li>
-                  </ul>';
-          } else {
-            echo "<div></div>";
-          }
-        ?>
+                    <li class='nav-item mx-1'>
+                        <a class='nav-link' href='recommendations.php'>Recommended</a>
+                        </li>
+                    <li class='nav-item mx-1'>
+                        <a class='nav-link' href='mylistings.php'>My Listings</a>
+                        </li>
+                    <li class='nav-item ml-3'>
+                        <a class='nav-link btn border-light' href='create_auction.php'>+ Create auction</a>
+                        </li>
+                    <li class='nav-item ml-4'>
+                        <a class='nav-link btn border-light' href='create_item.php'>+ Create Item</a>
+                      </li>
+                    ";
+                } 
+              ?>
+
+        </ul>
     </nav>
 
     <!-- Login modal -->
