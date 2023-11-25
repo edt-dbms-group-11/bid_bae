@@ -1,10 +1,10 @@
 <?php 
   include_once("header.php");
-  include_once("session_check.php");
   include_once("database.php");
+  include_once("bid_winner_cron.php")
 ?>
-<?php require("utilities.php")?>
 
+<?php require("utilities.php")?>
 <?php
   if ($_SESSION['username'] != null) {
     $username = $_SESSION['username'];
@@ -15,8 +15,10 @@
 
   $auction_id;
   $user_id;
+
   if (isset($_GET['auction_id'])) {
     $auction_id = $_GET['auction_id'];
+    checkValidAuctionId($connection, $auction_id);
   } else {
     echo("Invalid auction data");
     header("refresh:3;url=browse.php");
@@ -27,6 +29,7 @@
   }
 
   $auctionData = queryAuctionDetail($connection, $auction_id);
+  $auctionLogsList = queryAuctionLogs($connection, $auction_id);
 
   $auction_id = $auctionData['auction_id'];
   $auction_title = $auctionData['title'];
@@ -40,12 +43,11 @@
   $auction_status = $auctionData['auction_status'];
   $auction_items = $auctionData['items'];
   $auction_user_display_name = $auctionData['user_display_name'];
+  
+  
 
   // TODO(paul): move query to database fn file
   function queryAuctionDetail($connection, $auction_id) {
-    // TODO(PAUL): validate this before fetching more data
-    // $queryString = "SELECT * FROM Auctions WHERE auction_id='$auction_id'";
-
     $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
     JOIN Auction ON Auction_Product.auction_id = Auction.id
     JOIN Item ON Auction_Product.item_id = Item.id
@@ -64,6 +66,19 @@
     }
     $mergedAuctions = mergeAuctionDetails($auction_detail);
     return $mergedAuctions[$auction_id];
+  }
+
+  function checkValidAuctionId($connection, $auction_id) {
+    $auction_single_query = "SELECT * FROM Auction_Product WHERE auction_id=$auction_id";
+    $auction_detail_item = mysqli_query($connection, $auction_single_query);
+    
+    if (!$auction_detail_item || mysqli_num_rows($auction_detail_item) === 0) {
+        http_response_code(404);
+        include("404.php");
+        exit;
+    }
+
+    return true;
   }
 
   function mergeAuctionDetails($auctionDetails) {
@@ -99,7 +114,37 @@
       }
   
       return $mergedAuctions;
-  }?>
+  }
+  
+  function queryAuctionLogs($connection, $auction_id) {
+    $auction_log_query = "SELECT
+                          Bid.id AS bid_id,
+                          Bid.bid_price,
+                          User.id AS user_id,
+                          User.display_name
+                          FROM
+                            Bid
+                          JOIN User ON Bid.user_id = User.id
+                          WHERE
+                            Bid.auction_id = $auction_id;";
+
+    $auction_log_items = mysqli_query($connection, $auction_log_query);
+    if (!$auction_log_items) {
+      die('Invalid query: ' . mysqli_error($connection));
+    }
+
+    $auction_logs = array();
+    
+    while ($row = mysqli_fetch_object($auction_log_items)) {
+      $auction_logs[] = $row;
+    }
+  
+    // var_dump($auction_logs);
+    return $auction_logs;
+  }
+
+  ?>
+  
 
 <?php
 
@@ -140,8 +185,10 @@
       <div class="auction-right align-content-around my-1 row">
         <div class="py-3 justify-content-between align-content-between ">
           <div class="auction-detail">
-            <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
-              Current bid: £<?php echo(number_format($auction_current_price, 2)) ?>
+            <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
+              <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
+                Current bid: £<?php echo(number_format($auction_current_price, 2)) ?>
+            <?php endif; ?>
             </div>
           </div>
           <div class="auction-buttons">
@@ -158,27 +205,22 @@
                       <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
                     </div>
                   </div>
-                  <?php
-                  // Show auction history or other relevant information if needed
-                  ?>
-                  <div class="auction-history">
-                    <!-- TODO: query auction bid logs -->
-                  </div>
                 </div>
               </div>
-            <?php else: ?>
-              <p class="h4">Someone's bought it!</p>
-              <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
-            <?php endif; ?>
+              <?php else: ?>
+                <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
+                    <p class="h5 py-3">You've missed the it!</p>
+                    <p>This auction ended due to lack of high-valued bids</p>
+                <?php else: ?>
+                    <p class="h5 py-3">Someone's bought it!</p>
+                    <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
+                <?php endif; ?>
+              <?php endif; ?>
             <div class="pb-2" id="bid-alert-container"></div>
           </div>
           <div class="bottom-content">
             <div class="">
-              <?php
-              /* The following watchlist functionality uses JavaScript, but could
-                just as easily use PHP as in other places in the code */
-              if ($now < $auction_end_time_converted):
-              ?>
+              <?php if ($now < $auction_end_time_converted): ?>
               <!-- [WIP] TODO: continue watchlist fn -->
               <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?>>
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to watchlist</button>
@@ -196,13 +238,19 @@
                 </div>
               <?php else: ?>
                 <div class="alert alert-warning" role="alert">
-                  This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M H:i') . $time_remaining) ?>
+                  This auction will end in <?php echo(date_format($auction_end_time_converted, 'j M \a\t H:i')); ?> (<?php echo $time_remaining; ?> remaining)
                 </div>
               <?php endif ?>
             </div>
+
+            <!-- TODO(paul): Remove this dummy trigger -->
+            <!-- <div class="dummy-end">
+              <button id="endAuctionButton">end this auction</button>
+            </div> -->
           </div>
         </div>
       </div>
+      
     </div>
     <div class="bottom-item-container">
       <h4 class="my-3 lead">Items included in this auction : </h4>
@@ -224,6 +272,30 @@
             </div>
           </div>
         <?php endforeach; ?>
+      </div>
+    </div>
+    <div class="auction-history flex row">
+      <div class="auction-history--list">
+        <div class="container mt-3">
+          <p class="lead text-sm">Bid History</p>
+          <table class="table table-sm table-bordered-sm">
+              <thead>
+              <tr>
+                <th>ID </th>
+                <th>Bid Price</th>
+                <th>Display Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              <?php foreach ($auctionLogsList as $log): ?>
+                  <tr>
+                    <td><?= $log->bid_id ?></td>
+                    <td>£<?= $log->bid_price ?></td>
+                    <td><?= $log->display_name ?></td>
+                  </tr>
+              <?php endforeach; ?>
+              </tbody>
+          </table>
       </div>
     </div>
   </div>
@@ -311,7 +383,7 @@
   function onBidInput() {
     onlyNum();
     let bidAmount = $('#user-bid-input').val().trim();
-    let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?>;
+    let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?> || 0;
     let bidAlert = '<div class="badge badge-danger px-4 py-1 mb-1">Bid must be higher than current bid</div>';
     
     if (parseInt(bidAmount) < currBid) {
@@ -357,4 +429,32 @@
     });
   }
 
+  // TODO(paul): Remove this dummy trigger
+  // document.getElementById('endAuctionButton').addEventListener('click', function() {
+  //   fetch('bid_winner_cron.php')
+  //     .then(response => response.text())
+  //     .then(data => {
+  //       // You can handle the response here if needed
+  //       console.log(data);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error:', error);
+  //   });
+  // });
 </script>
+
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+  .container {
+    max-width: 800px;
+  }
+  table {
+    font-size: 14px;
+  }
+  th, td {
+    padding: 0.5rem;
+    text-align: center;
+  }
+</style>
