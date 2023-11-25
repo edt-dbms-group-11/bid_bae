@@ -4,6 +4,7 @@
   global $connection;
 
   function updateAuctionStatusAndWinner($connection) {
+    error_log("updateAuctionStatusAndWinner");
     $query = "SELECT id, end_time, reserved_price FROM Auction WHERE end_time < NOW() AND status = 'IN_PROGRESS'";
     $result = mysqli_query($connection, $query);
 
@@ -41,6 +42,7 @@
   }
 
   function findAuctionWinner($connection, $auction_id) {
+    error_log('findAuctionWinner');
     $query = "SELECT B.user_id, U.display_name, MAX(B.bid_price) AS winning_bid
               FROM Bid B
               INNER JOIN User U ON B.user_id = U.id
@@ -69,6 +71,7 @@
   }
 
   function updateItemStatusForAuction($connection, $auction_id) {
+    error_log('updateItemStatusForAuction');
     $query = "SELECT item_id FROM Auction_Product WHERE auction_id = $auction_id";
     $result = mysqli_query($connection, $query);
 

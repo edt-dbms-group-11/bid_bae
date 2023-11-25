@@ -250,52 +250,52 @@
           </div>
         </div>
       </div>
-      <div class="bottom-item-container">
-        <h4 class="my-3 lead">Items included in this auction : </h4>
-        <div class="bottom-item-container--list d-flex">
-          <?php foreach ($auction_items as $item): ?>
-            <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
-              <div class="row g-0">
-                <div class="col-md-4">
-                  <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
-                </div>
-                <div class="col-md-8 border-left">
-                  <div class="card-body">
-                    <h6 class=""><?= $item['item_name'] ?></h6>
-                    <p class="card-text">
-                      <small class="text-muted"><?= $item['description'] ?></small>
-                    </p>
-                  </div>
+      
+    </div>
+    <div class="bottom-item-container">
+      <h4 class="my-3 lead">Items included in this auction : </h4>
+      <div class="bottom-item-container--list d-flex">
+        <?php foreach ($auction_items as $item): ?>
+          <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
+              </div>
+              <div class="col-md-8 border-left">
+                <div class="card-body">
+                  <h6 class=""><?= $item['item_name'] ?></h6>
+                  <p class="card-text">
+                    <small class="text-muted"><?= $item['description'] ?></small>
+                  </p>
                 </div>
               </div>
             </div>
-          <?php endforeach; ?>
-        </div>
+          </div>
+        <?php endforeach; ?>
       </div>
-      
-      <div class="auction-history flex row">
-        <div class="auction-history--list">
-          <div class="container mt-3">
-            <p class="lead text-sm">Bid History</p>
-            <table class="table table-sm table-bordered-sm">
-                <thead>
-                <tr>
-                  <th>ID </th>
-                  <th>Bid Price</th>
-                  <th>Display Name</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($auctionLogsList as $log): ?>
-                    <tr>
-                      <td><?= $log->bid_id ?></td>
-                      <td><?= $log->bid_price ?></td>
-                      <td><?= $log->display_name ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    </div>
+    <div class="auction-history flex row">
+      <div class="auction-history--list">
+        <div class="container mt-3">
+          <p class="lead text-sm">Bid History</p>
+          <table class="table table-sm table-bordered-sm">
+              <thead>
+              <tr>
+                <th>ID </th>
+                <th>Bid Price</th>
+                <th>Display Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              <?php foreach ($auctionLogsList as $log): ?>
+                  <tr>
+                    <td><?= $log->bid_id ?></td>
+                    <td>£<?= $log->bid_price ?></td>
+                    <td><?= $log->display_name ?></td>
+                  </tr>
+              <?php endforeach; ?>
+              </tbody>
+          </table>
       </div>
     </div>
   </div>
