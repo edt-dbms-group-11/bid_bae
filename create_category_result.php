@@ -22,7 +22,7 @@
       }
     
         foreach ($categories as $category) : 
-            if ($category['name'] == $categoryTitle){
+            if (strtolower($category['name']) == strtolower($categoryTitle)){
                 echo "<script>alert('Category Name already exists')</script>";
                 exit;
             }
