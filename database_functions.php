@@ -78,4 +78,43 @@ function getCategoriesFromDatabase()
     }
 }
 
+function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword, $page_num, $page_size) {
+    $offset_value = ($page_num - 1) * $page_size;
+
+    $orderByExpression = '';
+    switch ($order_by) {
+        case 'pricelow':
+            $sortExpression = 'a.current_price ASC';
+            break;
+        case 'pricehigh':
+            $sortExpression = 'a.current_price DESC';
+            break;
+        case 'date':
+            $sortExpression = 'a.end_time ASC';
+            break;
+        default:
+            $sortExpression = 'a.end_time ASC';
+            break;
+    }
+    $sql_query = "";
+    $sql_query .= "SELECT auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id), auc.end_time
+                    FROM Auction AS auc
+                    JOIN Bid AS bid ON bid.auction_id = auc.id
+                    JOIN Auction_Product AS auc_item ON auc.id = auc_item.auction_id
+                    JOIN Item AS item ON auc_item.item_id = item.id
+                    WHERE item.description LIKE '%%%s%%'
+                    "
+    if($category_id) {
+        $sql_query .= "AND item.category_id = $category_id";
+    }
+    
+    $sql_query .= "GROUP BY auc.id
+                    ORDER BY %s
+                    LIMIT %u
+                    OFFSET %u;
+    ";
+    
+    $formatted_sql_query = $sprintf($sql_query, $keyword, $orderByExpression, $page_size, $offset_value);
+    echo $formatted_sql_query;
+}
 ?>

@@ -1,5 +1,8 @@
-<?php include_once("header.php")?>
-<?php require("utilities.php")?>
+<?php
+include_once("header.php");
+include_once("utilities.php");
+include_once("database_functions.php");
+?>
 
 <div class="container">
 
@@ -20,28 +23,29 @@
               <i class="fa fa-search"></i>
             </span>
           </div>
-          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for some changes here">
+          <input type="text" name="keyword" class="form-control border-left-0" id="keyword" placeholder="Search for keywords">
         </div>
       </div>
     </div>
     <div class="col-md-3 pr-0">
       <div class="form-group">
         <label for="cat" class="sr-only">Search within:</label>
-        <select class="form-control" id="cat">
+        <?php $categories = getCategoriesFromDatabase(); ?>
+        <select class="form-control" id="cat" name="cat">
           <option selected value="all">All categories</option>
-          <option value="fill">Fill me in</option>
-          <option value="with">with options</option>
-          <option value="populated">populated from a database?</option>
+          <?php foreach ($categories as $category): ?>
+            <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
     </div>
     <div class="col-md-3 pr-0">
       <div class="form-inline">
         <label class="mx-2" for="order_by">Sort by:</label>
-        <select class="form-control" id="order_by">
-          <option selected value="pricelow">Price (low to high)</option>
+        <select class="form-control" id="order_by" name="order_by">
+          <option selected value="date">Soonest expiry</option>
+          <option value="pricelow">Price (low to high)</option>
           <option value="pricehigh">Price (high to low)</option>
-          <option value="date">Soonest expiry</option>
         </select>
       </div>
     </div>
@@ -58,21 +62,21 @@
 <?php
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {
-    // TODO: Define behavior if a keyword has not been specified.
+    $keyword = '';
   }
   else {
     $keyword = $_GET['keyword'];
   }
 
   if (!isset($_GET['cat'])) {
-    // TODO: Define behavior if a category has not been specified.
+    $category = NULL;  // Handled in the DB function
   }
   else {
     $category = $_GET['cat'];
   }
   
   if (!isset($_GET['order_by'])) {
-    // TODO: Define behavior if an order_by value has not been specified.
+    $ordering = 'date';
   }
   else {
     $ordering = $_GET['order_by'];
