@@ -58,8 +58,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
         <ul class="navbar-nav align-middle">
             <li class="nav-item mx-1">
                 <a class="nav-link" href="browse.php">Browse</a>
-            </li>
-            
+            </li>            
             <?php
                 if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
                     echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
@@ -76,10 +75,15 @@ if (!isset($_SESSION) || $_SESSION == null) {
                     <li class='nav-item ml-4'>
                         <a class='nav-link btn border-light' href='create_item.php'>+ Create Item</a>
                       </li>
+                    <li class='nav-item ml-4'>
+                      <a class='nav-link btn border-light' href='create_category.php'>+ Create Category</a>
+                    </li>
+                    <li>
+                      <a class='nav-link btn border-light' href='watchlist.php'>Watchlist</a>
+                    </li>
                     ";
                 } 
               ?>
-
         </ul>
     </nav>
 
@@ -102,7 +106,8 @@ if (!isset($_SESSION) || $_SESSION == null) {
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Password">
                         </div>
                         <button type="submit" class="btn btn-primary form-control">Sign in</button>
                     </form>
