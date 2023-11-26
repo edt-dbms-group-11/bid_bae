@@ -74,6 +74,8 @@ if (!isset($_SESSION) || $_SESSION == null) {
   </li>
   <li class="nav-item ml-4">
     <a class="nav-link btn border-light" href="create_category.php">+ Create Category</a>
+  </li>
+  <a class="nav-link btn border-light" href="watchlist.php">Watchlist</a>
   </li> </ul>';
         } else {
             echo "<div></div>";
