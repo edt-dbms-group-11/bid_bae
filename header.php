@@ -58,29 +58,33 @@ if (!isset($_SESSION) || $_SESSION == null) {
         <ul class="navbar-nav align-middle">
             <li class="nav-item mx-1">
                 <a class="nav-link" href="browse.php">Browse</a>
-            </li>
-        </ul>
-        <?php
-        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
-            echo '<ul class="navbar-nav align-middle">
-                    <li class="nav-item mx-1">
-                        <a class="nav-link" href="item_list.php">My Products</a>
+            </li>            
+            <?php
+                if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+                    echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
                     </li>
-                    <li class="nav-item ml-3">
-      <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
-    </li>
-    <li class="nav-item ml-4">
-    <a class="nav-link btn border-light" href="create_item.php">+ Create Item</a>
-  </li>
-  <li class="nav-item ml-4">
-    <a class="nav-link btn border-light" href="create_category.php">+ Create Category</a>
-  </li>
-  <a class="nav-link btn border-light" href="watchlist.php">Watchlist</a>
-  </li> </ul>';
-        } else {
-            echo "<div></div>";
-        }
-        ?>
+                    <li class='nav-item mx-1'>
+                        <a class='nav-link' href='recommendations.php'>Recommended</a>
+                        </li>
+                    <li class='nav-item mx-1'>
+                        <a class='nav-link' href='mylistings.php'>My Listings</a>
+                        </li>
+                    <li class='nav-item ml-3'>
+                        <a class='nav-link btn border-light' href='create_auction.php'>+ Create auction</a>
+                        </li>
+                    <li class='nav-item ml-4'>
+                        <a class='nav-link btn border-light' href='create_item.php'>+ Create Item</a>
+                      </li>
+                    <li class='nav-item ml-4'>
+                      <a class='nav-link btn border-light' href='create_category.php'>+ Create Category</a>
+                    </li>
+                    <li>
+                      <a class='nav-link btn border-light' href='watchlist.php'>Watchlist</a>
+                    </li>
+                    ";
+                } 
+              ?>
+        </ul>
     </nav>
 
     <!-- Login modal -->

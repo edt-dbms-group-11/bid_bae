@@ -1,0 +1,1 @@
+*/3 * * * * php path/to/check_bid_winner.php
