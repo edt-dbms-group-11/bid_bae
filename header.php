@@ -41,10 +41,13 @@ if (!isset($_SESSION) || $_SESSION == null) {
 				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
 					echo "<div class='container'>
 						<div class='row'>
-							<div class='col-6'>
+							<div class='col-6 p-2 lead text-center text-secondary'>
+								Hello, $display_name!
+							</div>
+							<div class='col-3 mt-1'>
 									<div class='dropdown'>
 											<button class='btn btn-outline-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-													Hi, $display_name
+													Create
 											</button>
 											<div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
 											<a class='dropdown-item' href='create_item.php'>Create New Item</a>
@@ -53,7 +56,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 											</div>
 									</div>
 							</div>
-							<div class='col-6'>
+							<div class='col-3 mt-1'>
 									<button class='btn btn-outline-secondary'>
 										<a class='text-secondary' href='logout.php'>Logout</a>
 									</button>
