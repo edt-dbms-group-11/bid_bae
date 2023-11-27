@@ -101,11 +101,7 @@ include_once("database_functions.php");
 <div class="container mt-5">
 <ul class="list-group">
 
-<!-- TODO: Use a while loop to print a list item for each auction listing
-     retrieved from the query -->
-
 <?php
-  // Demonstration of what listings will look like using dummy data.
 
   if ($row_count == 0) {
     echo '<div class="alert alert-warning mt-3" role="alert">';
@@ -184,7 +180,5 @@ include_once("database_functions.php");
 
 
 </div>
-
-
 
 <?php include_once("footer.php")?>
