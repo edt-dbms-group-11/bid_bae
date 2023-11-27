@@ -52,7 +52,6 @@ function createCategory($categoryTitle, $categoryDesc)
     $sql = "INSERT INTO category(name, description) VALUES ('$categoryTitle', '$categoryDesc')";
 
     if (mysqli_query($connection, $sql)) {
-        echo "<script>alert('new record inserted')</script>";
         echo "<script type='text/javascript'>window.top.location='./create_category_success.php';</script>";
         exit;
     } else {
