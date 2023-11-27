@@ -77,11 +77,14 @@ if (!isset($_SESSION) || $_SESSION == null) {
 					echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
 					</li>
 					<li class='nav-item mx-1'>
-						<a class='nav-link' href='recommendations.php'>Recommended</a>
-						</li>
+						<a class='nav-link' href='item_list.php'>My Items</a>
+					</li>
 					<li class='nav-item mx-1'>
 						<a class='nav-link' href='mylistings.php'>My Listings</a>
-						</li>";
+					</li>
+					<li class='nav-item mx-1'>
+						<a class='nav-link' href='recommendations.php'>Recommendation</a>
+					</li>";
 					} 
 			  ?>
 		</ul>
