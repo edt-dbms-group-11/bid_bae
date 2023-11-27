@@ -13,8 +13,8 @@ include_once("database_functions.php");
      Search/sort specs are passed to this page through parameters in the URL
      (GET method of passing data to a page). -->
 <form method="get" action="browse.php">
-  <div class="row">
-    <div class="col-md-5 pr-0">
+  <div class="row d-flex">
+    <div class="col-md-4 align-self-end pr-0">
       <div class="form-group">
         <label for="keyword" class="sr-only">Search keyword:</label>
 	    <div class="input-group">
@@ -27,7 +27,7 @@ include_once("database_functions.php");
         </div>
       </div>
     </div>
-    <div class="col-md-3 pr-0">
+    <div class="col-md-3 align-self-end pr-0">
       <div class="form-group">
         <label for="cat" class="sr-only">Search within:</label>
         <?php $categories = getCategoriesFromDatabase(); ?>
@@ -39,8 +39,8 @@ include_once("database_functions.php");
         </select>
       </div>
     </div>
-    <div class="col-md-3 pr-0">
-      <div class="form-inline">
+    <div class="col-md-2 align-self-center pr-0">
+      <div class="form-group">
         <label class="mx-2" for="order_by">Sort by:</label>
         <select class="form-control" id="order_by" name="order_by">
           <option <?php echo (!isset($_GET['order_by']) || $_GET['order_by'] === 'date') ? 'selected' : ''; ?> value="date">Soonest expiry</option>
@@ -49,7 +49,17 @@ include_once("database_functions.php");
         </select>
       </div>
     </div>
-    <div class="col-md-1 px-0">
+    <div class="col-md-2 align-self-center pr-0">
+      <div class="form-group">
+        <label class="mx-2" for="status">Auction Status:</label>
+        <select class="form-control" id="status" name="status">
+          <option <?php echo (!isset($_GET['status']) || $_GET['status'] === 'running') ? 'selected' : ''; ?> value="running">In Progress</option>
+          <option <?php echo (isset($_GET['status']) && $_GET['status'] === 'tostart') ? 'selected' : ''; ?> value="tostart">Yet to start</option>
+          <option <?php echo (isset($_GET['status']) && $_GET['status'] === 'ended') ? 'selected' : ''; ?> value="ended">Ended</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-1 align-self-end mb-3 pr-0">
       <button type="submit" class="btn btn-primary">Search</button>
     </div>
   </div>
@@ -82,6 +92,13 @@ include_once("database_functions.php");
     $ordering = $_GET['order_by'];
   }
   
+  if (!isset($_GET['status'])) {
+    $status = 'running';
+  }
+  else {
+    $status = $_GET['status'];
+  }
+
   if (!isset($_GET['page'])) {
     $curr_page = 1;
   }
@@ -91,7 +108,7 @@ include_once("database_functions.php");
   
   $results_per_page = 10;
 
-  $queriedAuctions = getAuctionsFromDatabaseWithParameters($ordering, $category, $keyword, $curr_page, $results_per_page);
+  $queriedAuctions = getAuctionsFromDatabaseWithParameters($ordering, $category, $keyword, $status, $curr_page, $results_per_page);
 
   $row_count = getRowCount();
   $num_results = $row_count;  
