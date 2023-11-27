@@ -6,16 +6,13 @@ include_once("database_functions.php");
 
 
 <?php
-session_start();
-
 // If user is not logged in, they should not be able to use this page.
 if (!isset($_SESSION) || $_SESSION == null)  {
   echo('<div class="text-center">You\'re not logged in. Please re-login if this was a mistake</div>');
   header('refresh:3;url=browse.php');
 }
 
-// Assuming seller_id is stored in the session
-$seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases where user_id is not set
+$seller_id = $_SESSION['id'];
 ?>
 
 <div class="container">
@@ -23,15 +20,18 @@ $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases wh
 <!-- Create auction form -->
 <div style="max-width: 800px; margin: 10px auto">
   <h2 class="my-3">Create new auction</h2>
+  <?php 
+    if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+      echo('<div class="alert alert-danger" role="alert">Error creating auction. Please fix the following issues:<br>');
+      foreach ($_SESSION['errors'] as $error) {
+          echo('- ' . $error . '<br>');
+      }
+      echo('</div>');
+
+      unset($_SESSION['errors']);
+  }?>
   <div class="card">
     <div class="card-body">
-      <!-- Note: This form does not do any dynamic / client-side / 
-      JavaScript-based validation of data. It only performs checking after 
-      the form has been submitted, and only allows users to try once. You 
-      can make this fancier using JavaScript to alert users of invalid data
-      before they try to send it, but that kind of functionality should be
-      extremely low-priority / only done after all database functions are
-      complete. -->
       <form method="post" action="create_auction_result.php">
         <div class="form-group row">
           <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Title of auction</label>
@@ -95,7 +95,7 @@ $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases wh
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <input type="number" class="form-control" id="auctionStartPrice" name="auctionStartPrice">
+              <input min="1" type="number" class="form-control" id="auctionStartPrice" name="auctionStartPrice">
             </div>
             <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount.</small>
           </div>
@@ -107,7 +107,7 @@ $seller_id = $_SESSION['id']; // Use null coalescing operator to handle cases wh
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <input type="number" class="form-control" id="auctionReservePrice" name="auctionReservePrice">
+              <input min="1" type="number" class="form-control" id="auctionReservePrice" name="auctionReservePrice">
             </div>
             <small id="reservePriceHelp" class="form-text text-muted">Optional. Auctions that end below this price will not go through. This value is not displayed in the auction listing.</small>
           </div>

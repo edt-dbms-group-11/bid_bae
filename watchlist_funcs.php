@@ -1,14 +1,18 @@
  <?php
-
+include_once('database.php');
+session_start();
 if (!isset($_POST['functionname']) || !isset($_POST['arguments'])) {
   return;
 }
 
 // Extract arguments from the POST variables:
-$item_id = $_POST['arguments'];
+$auction_id = $_POST['arguments'][0];
+$user_id = $_POST["user_id"];
 
 if ($_POST['functionname'] == "add_to_watchlist") {
   // TODO: Update database and return success/failure.
+  $sql_add_to_watchlist = "INSERT INTO watchlist(auction_id, user_id) VALUES ($auction_id,$user_id)";
+  $result_add_to_watchlist = mysqli_query($connection,$sql_add_to_watchlist);
 
   $res = "success";
 }

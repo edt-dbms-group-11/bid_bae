@@ -46,6 +46,33 @@ function getSellerItems($seller_id) {
     }
 }
 
+function createCategory($categoryTitle, $categoryDesc)
+{
+    global $connection;
+    $sql = "INSERT INTO category(name, description) VALUES ('$categoryTitle', '$categoryDesc')";
+
+    if (mysqli_query($connection, $sql)) {
+        echo "<script type='text/javascript'>window.top.location='./create_category_success.php';</script>";
+        exit;
+    } else {
+        echo "error:" . mysqli_error($connection);
+    }
+}
+
+function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
+    global $connection;
+    $sql = "INSERT INTO item (user_id,name,description,category_id,image_url) values('$user_id','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
+      
+    if(mysqli_query($connection,$sql))
+    {
+        echo "<script>alert('new record inserted')</script>";
+        echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
+    }
+    else{
+        echo "error:" .mysqli_error($connection);
+    }
+}
+
 // Function to get categories from the database
 function getCategoriesFromDatabase()
 {
