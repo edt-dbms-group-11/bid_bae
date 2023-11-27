@@ -69,7 +69,7 @@ include_once("database_functions.php");
   }
 
   if (!isset($_GET['cat'])) {
-    $category = NULL;  // Handled in the DB function
+    $category = 'all';  // Handled in the DB function
   }
   else {
     $category = $_GET['cat'];
@@ -88,22 +88,17 @@ include_once("database_functions.php");
   else {
     $curr_page = $_GET['page'];
   }
-
-  /* TODO: Use above values to construct a query. Use this query to 
-     retrieve data from the database. (If there is no form data entered,
-     decide on appropriate default value/default query to make. */
   
-  /* For the purposes of pagination, it would also be helpful to know the
-     total number of results that satisfy the above query */
-  $num_results = 96; // TODO: Calculate me for real
   $results_per_page = 10;
+
+  $queriedAuctions = getAuctionsFromDatabaseWithParameters($ordering, $category, $keyword, $curr_page, $results_per_page);
+
+  $row_count = getRowCount();
+  $num_results = $row_count;  
   $max_page = ceil($num_results / $results_per_page);
 ?>
 
 <div class="container mt-5">
-
-<!-- TODO: If result set is empty, print an informative message. Otherwise... -->
-
 <ul class="list-group">
 
 <!-- TODO: Use a while loop to print a list item for each auction listing
@@ -111,24 +106,17 @@ include_once("database_functions.php");
 
 <?php
   // Demonstration of what listings will look like using dummy data.
-  $item_id = "87021";
-  $title = "Dummy title";
-  $description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum eget rutrum ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus feugiat, ipsum vel egestas elementum, sem mi vestibulum eros, et facilisis dui nisi eget metus. In non elit felis. Ut lacus sem, pulvinar ultricies pretium sed, viverra ac sapien. Vivamus condimentum aliquam rutrum. Phasellus iaculis faucibus pellentesque. Sed sem urna, maximus vitae cursus id, malesuada nec lectus. Vestibulum scelerisque vulputate elit ut laoreet. Praesent vitae orci sed metus varius posuere sagittis non mi.";
-  $current_price = 30;
-  $num_bids = 1;
-  $end_date = new DateTime('2020-09-16T11:00:00');
-  
-  // This uses a function defined in utilities.php
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
-  
-  $item_id = "516";
-  $title = "Different title";
-  $description = "Very short description.";
-  $current_price = 13.50;
-  $num_bids = 3;
-  $end_date = new DateTime('2020-11-02T00:00:00');
-  
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+
+  if ($row_count == 0) {
+    echo '<div class="alert alert-warning mt-3" role="alert">';
+    echo 'Sorry, no results found. We apologize for the inconvenience.';
+    echo '</div>';
+  }
+  else {
+    foreach ($queriedAuctions as $auction) {
+      print_listing_li($auction['id'], $auction['title'], $auction['description'], $auction['current_price'], $auction['bid_count'], $auction['end_time']);
+    }
+  }
 ?>
 
 </ul>
