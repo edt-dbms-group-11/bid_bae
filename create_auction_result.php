@@ -50,7 +50,7 @@
 
       // Check if start price is a positive number
       $startPriceInt = filter_var($startPrice, FILTER_VALIDATE_INT);
-      if ((!$startPriceInt || $startPriceInt < 1 || $startPrice !== $startPriceInt)) {
+      if ((!$startPriceInt || $startPriceInt < 1 || $startPrice != $startPriceInt)) {
         $errors[] = "Start price must be a positive number.";
       } 
 
@@ -59,7 +59,7 @@
       if (!isset($reservePrice) || trim($reservePrice) === '') {
           // If reserve price is blank, assign the start price to it
           $reservePrice = $startPrice;
-      } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice !== $reservePriceInt) {
+      } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
           // If reserve price is provided but not a positive number, show an error
           $errors[] = "Reserve price must be a positive number.";
       } elseif ($reservePrice < $startPrice) {
