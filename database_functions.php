@@ -105,4 +105,88 @@ function getCategoriesFromDatabase()
     }
 }
 
+function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword, $status, $page_num, $page_size) {
+    global $connection;
+
+    $offset_value = ($page_num - 1) * $page_size;
+
+    $orderByExpression = '';
+
+    switch ($order_by) {
+        case 'pricelow':
+            $orderByExpression = 'auc.current_price ASC';
+            break;
+        case 'pricehigh':
+            $orderByExpression = 'auc.current_price DESC';
+            break;
+        case 'date':
+            $orderByExpression = 'auc.end_time ASC';
+            break;
+        default:
+            $orderByExpression = 'auc.end_time ASC';
+            break;
+    }
+
+    $statusExpression = '';
+    switch ($status) {
+        case 'running':
+            $statusExpression = 'IN_PROGRESS';
+            break;
+        case 'tostart':
+            $statusExpression = 'INIT';
+            break;
+        case 'ended':
+            $statusExpression = 'DONE';
+            break;
+    }
+
+    $sql_query = "SELECT SQL_CALC_FOUND_ROWS auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id) as bid_count, auc.end_time
+                    FROM Auction AS auc
+                    LEFT JOIN Bid AS bid ON bid.auction_id = auc.id
+                    JOIN Auction_Product AS auc_item ON auc.id = auc_item.auction_id
+                    JOIN Item AS item ON auc_item.item_id = item.id
+                    WHERE auc.status = '%s'
+                    AND (item.description LIKE '%%%s%%'
+                        OR auc.description LIKE '%%%s%%'
+                        OR item.name LIKE '%%%s%%'
+                        or auc.title LIKE '%%%s%%'
+                        )
+                    ";
+    if($category_id != 'all') {
+        $sql_query .= "AND item.category_id = $category_id ";
+    }
+    
+    $sql_query .= "GROUP BY auc.id
+                    ORDER BY %s
+                    LIMIT %u
+                    OFFSET %u;
+    ";
+    
+    $formatted_sql_query = sprintf($sql_query, $statusExpression, $keyword, $keyword, $keyword, $keyword, $orderByExpression, $page_size, $offset_value);
+    $result = $connection->query($formatted_sql_query);
+    $auctions = array();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $auctions[] = $row;
+        }
+    }
+
+    return $auctions;
+}
+
+function getRowCount() {  // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
+    global $connection;
+
+    $sql_query = "SELECT FOUND_ROWS() AS total_rows";
+
+    $result = $connection->query($sql_query);
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            return $row['total_rows'];
+        }
+    }
+    return 0;
+}
 ?>
