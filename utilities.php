@@ -1,6 +1,8 @@
 <?php
 
-// display_time_remaining:
+// Including database connection here
+include_once("database.php");
+
 // Helper function to help figure out what time to display
 function display_time_remaining($interval) {
 
@@ -21,7 +23,6 @@ function display_time_remaining($interval) {
 
 }
 
-// print_listing_li:
 // This function prints an HTML <li> element containing an auction listing
 function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
 {
@@ -59,6 +60,47 @@ function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
     <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . number_format($price, 2) . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
   </li>'
   );
+}
+
+//used in mylistings.php to retrieve auctions as per user's desired filter
+function getUserAuctionsByFilter($user_id, $filter) {
+  global $connection;
+
+  // Ensure $filter is a safe value to prevent SQL injection
+  $allowed_filters = ['available', 'ended', 'all'];
+  if (!in_array($filter, $allowed_filters)) {
+      throw new InvalidArgumentException("Invalid filter value provided.");
+      return [];
+  }
+
+  $sql_query = "SELECT auc.id AS item_id, auc.title, auc.description, auc.current_price, auc.end_time, count(bid.id) as num_bids
+  FROM Auction AS auc
+  LEFT JOIN Bid as bid on bid.auction_id = auc.id
+  WHERE auc.seller_id = $user_id";
+
+  // Add filter conditions to the query
+  switch ($filter) {
+      case 'available':
+        $sql_query .= " AND auc.end_time > NOW()";
+        break;
+      case 'ended':
+        $sql_query .= " AND auc.end_time <= NOW()";
+        break;
+      default:
+        break;
+  }
+
+  $sql_query .= " GROUP BY auc.id";
+
+  $result = $connection->query($sql_query);
+  $user_auctions = [];
+
+  if ($result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+          $user_auctions[] = $row;
+      }
+  }
+  return $user_auctions;
 }
 
 ?>

@@ -21,8 +21,8 @@
     $details = $_POST['auctionDetails'];
     $startPrice = $_POST['auctionStartPrice'];
     $reservePrice = $_POST['auctionReservePrice'];
+    $startDate = $_POST['auctionStartDate'];
     $endDate = $_POST['auctionEndDate'];
-    $formattedEndDate = date('Y-m-d H:i:s', strtotime($endDate));
 
     // print_r($_SESSION);
     $seller_id = $_SESSION['id'];
@@ -73,9 +73,16 @@
         $errors[] = "Reserve price cannot be lower than the start price.";
     }
 
-    // Validate end date - you may want to check if the date is in the future
+    // Validate start date - you may want to check if the date is in the future
+    if (empty($startDate) || strtotime($startDate) <= time()) {
+        $errors[] = "Invalid start date.";
+    }
+
+    // Validate end date - you may want to check if the date is in the future, and after the start date
     if (empty($endDate) || strtotime($endDate) <= time()) {
         $errors[] = "Invalid end date.";
+    } elseif (strtotime($endDate) <= strtotime($startDate)) {
+        $errors[] = "Auction cannot end before it begins.";
     }
 
     // If there are validation errors, display them
@@ -88,8 +95,8 @@
     } else {
 
         // If everything looks good, make the appropriate call to insert data into the database. */
-        $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, end_time) 
-                VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$formattedEndDate')";
+        $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, start_time, end_time) 
+                VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$startDate', '$endDate')";
 
         // Execute the query
         $result = mysqli_query($connection, $query);
@@ -99,8 +106,9 @@
             // If the insertion was successful, get the auction ID
             $auction_id = mysqli_insert_id($connection);
 
+            $selectedItems = explode(',', $_POST['selectedItems']);
             // Now, add rows to the Auction_Product table
-            foreach ($_POST['selectedItems'] as $item_id) {
+            foreach ($selectedItems as $item_id) {
                 $insertProductQuery = "INSERT INTO Auction_Product (item_id, auction_id) VALUES ('$item_id', '$auction_id')";
                 $insertProductResult = mysqli_query($connection, $insertProductQuery);
 
@@ -115,7 +123,7 @@
             echo('<div class="text-center">Auction and associated items successfully created! <a href="FIXME">View your new listing.</a></div>');
 
             //Update item availability in the Item table after it has successfully been added to the Auction and Auction_Product table
-            foreach ($_POST['selectedItems'] as $itemId) {
+            foreach ($_POST['modalSelectedItems'] as $itemId) {
                 // Validate if the item belongs to the current user
                 $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
                 $validateItemResult = mysqli_query($connection, $validateItemQuery);

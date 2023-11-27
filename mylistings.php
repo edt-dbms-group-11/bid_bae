@@ -1,24 +1,57 @@
-<?php include_once("header.php")?>
-<?php require("utilities.php")?>
+<?php
+include_once("header.php");
+include_once("utilities.php");
+include_once("database_functions.php");
+
+$user_id = $_SESSION['id']; // Assuming user is logged in
+?>
 
 <div class="container">
 
-<h2 class="my-3">My listings</h2>
+  <h2 class="my-3">My listings</h2>
 
-<?php
-  // This page is for showing a user the auction listings they've made.
-  // It will be pretty similar to browse.php, except there is no search bar.
-  // This can be started after browse.php is working with a database.
-  // Feel free to extract out useful functions from browse.php and put them in
-  // the shared "utilities.php" where they can be shared by multiple files.
-  
-  
-  // TODO: Check user's credentials (cookie/session).
-  
-  // TODO: Perform a query to pull up their auctions.
-  
-  // TODO: Loop through results and print them out as list items.
-  
-?>
+  <!-- Filter options -->
+  <form id="filterForm" method="get" action="mylistings.php">
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <div class="form-group">
+          <select class="form-control" id="filter_by" name="filter_by">
+            <option value="available" <?php echo ($filter_by === 'available') ? 'selected' : ''; ?>>Live Auctions</option>
+            <option value="ended" <?php echo ($filter_by === 'ended') ? 'selected' : ''; ?>>Ended Auctions</option>
+            <option value="all" <?php echo ($filter_by === 'all') ? 'selected' : ''; ?>>All Auctions</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
+      </div>
+    </div>
+  </form>
 
-<?php include_once("footer.php")?>
+
+  <div class="container mt-5">
+
+    <ul class="list-group" id="auctions_container">
+      <!-- Loop through user auctions and print a list item for each auction -->
+      <?php
+
+      $filter_by = isset($_GET['filter_by']) ? $_GET['filter_by'] : 'all';
+      $user_auctions = getUserAuctionsByFilter($user_id, $filter_by);
+
+      foreach ($user_auctions as $auction) {
+        $item_id = $auction['item_id'];
+        $title = $auction['title'];
+        $description = $auction['description'];
+        $current_price = $auction['current_price'];
+        $num_bids = $auction['num_bids'];
+        $end_date = new DateTime($auction['end_time']);
+
+        // Use the function defined in utilities.php
+        print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+      }
+      ?>
+    </ul>
+
+  </div>
+
+  <?php include_once("footer.php") ?>
