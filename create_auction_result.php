@@ -5,8 +5,6 @@
 <div class="container my-5">
 
 <?php
-
-    session_start();
     global $connection;
     if (!isset($_SESSION) || $_SESSION == null) {
     echo('<div class="text-center">You\'re not logged in. Please re-login if this was a mistake</div>');
@@ -16,62 +14,58 @@
     // Check if the form was submitted
     if (isset($_POST["auctionsubmit"])) {
    
-    // Extract form data into variables. 
-    $title = $_POST['auctionTitle'];
-    $details = $_POST['auctionDetails'];
-    $startPrice = $_POST['auctionStartPrice'];
-    $reservePrice = $_POST['auctionReservePrice'];
-    $startDate = $_POST['auctionStartDate'];
-    $endDate = $_POST['auctionEndDate'];
+      // Extract form data into variables. 
+      $title = $_POST['auctionTitle'];
+      $details = $_POST['auctionDetails'];
+      $startPrice = $_POST['auctionStartPrice'];
+      $reservePrice = $_POST['auctionReservePrice'];
+      $startDate = $_POST['auctionStartDate'];
+      $endDate = $_POST['auctionEndDate'];
 
-    // print_r($_SESSION);
-    $seller_id = $_SESSION['id'];
-
-    // TODO #2.1: Perform data validation.
-    $errors = [];
+      $seller_id = $_SESSION['id'];
+      $errors = [];
 
     // Check if title is not empty
-    if (empty($title)) {
-        $errors[] = "Title cannot be empty.";
-    }
+      if (empty($title)) {
+          $errors[] = "Title cannot be empty.";
+      }
 
     // Validate if each item ID belongs to the user
-    foreach ($_POST['selectedItems'] as $itemId) {
-        // Query the database to check if the item belongs to the user
-        $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
-        $validateItemResult = mysqli_query($connection, $validateItemQuery);
+        error_log(json_encode($_POST['selectedItems']));
+        foreach ($_POST['selectedItems'] as $itemId) {
+          $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
+          $validateItemResult = mysqli_query($connection, $validateItemQuery);
 
-        if (!$validateItemResult) {
-            // Handle the database error (e.g., log, display an error message)
-            echo "Database error: " . mysqli_error($connection);
-            exit; // Or handle the error in a way that makes sense for your application
+          if (!$validateItemResult) {
+              echo "Database error: " . mysqli_error($connection);
+              exit;
+          }
+
+          $row = mysqli_fetch_assoc($validateItemResult);
+
+          if ($row['user_id'] != $_SESSION['id']) {
+              $errors[] = "Invalid item selection.";
+          }
         }
 
-        $row = mysqli_fetch_assoc($validateItemResult);
-
-        // Check if the item belongs to the logged-in user
-        if ($row['user_id'] != $_SESSION['id']) {
-            // Item ID does not belong to the user
-            $errors[] = "Invalid item selection.";
-        }
-    }
-
-    // Check if start price is a positive number
-    if (!is_numeric($startPrice) || $startPrice <= 0) {
+      // Check if start price is a positive number
+      $startPriceInt = filter_var($startPrice, FILTER_VALIDATE_INT);
+      if ((!$startPriceInt || $startPriceInt < 1 || $startPrice != $startPriceInt)) {
         $errors[] = "Start price must be a positive number.";
-    }
+      } 
 
-    // Check if reserve price is a positive number (if provided)
-    if (!isset($reservePrice) || trim($reservePrice) === '') {
-        // If reserve price is blank, assign the start price to it
-        $reservePrice = $startPrice;
-    } elseif (!is_numeric($reservePrice) || $reservePrice <= 0) {
-        // If reserve price is provided but not a positive number, show an error
-        $errors[] = "Reserve price must be a positive number.";
-    } elseif ($reservePrice < $startPrice) {
-        // If reserve price is lower than start price, show an error
-        $errors[] = "Reserve price cannot be lower than the start price.";
-    }
+      // Check if reserve price is a positive number (if provided)
+      $reservePriceInt = filter_var($reservePrice, FILTER_VALIDATE_INT);
+      if (!isset($reservePrice) || trim($reservePrice) === '') {
+          // If reserve price is blank, assign the start price to it
+          $reservePrice = $startPrice;
+      } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
+          // If reserve price is provided but not a positive number, show an error
+          $errors[] = "Reserve price must be a positive number.";
+      } elseif ($reservePrice < $startPrice) {
+          // If reserve price is lower than start price, show an error
+          $errors[] = "Reserve price cannot be lower than the start price.";
+      }
 
     // Validate start date - you may want to check if the date is in the future
     if (empty($startDate) || strtotime($startDate) <= time()) {
@@ -85,22 +79,17 @@
         $errors[] = "Auction cannot end before it begins.";
     }
 
-    // If there are validation errors, display them
-    if (!empty($errors)) {
-        echo('<div class="text-center text-danger">Error creating auction. Please fix the following issues:<br>');
-        foreach ($errors as $error) {
-            echo('- ' . $error . '<br>');
-        }
-        echo('</div>');
+      if (!empty($errors)) {
+        $_SESSION['errors'] = $errors;
+        echo '<script>window.location.href = "create_auction.php";</script>';
+        exit();
     } else {
 
-        // If everything looks good, make the appropriate call to insert data into the database. */
         $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, start_time, end_time) 
                 VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$startDate', '$endDate')";
 
         // Execute the query
         $result = mysqli_query($connection, $query);
-        // $connection->query($query); 
 
         if ($result) {
             // If the insertion was successful, get the auction ID
@@ -160,10 +149,6 @@
         }
     }
 }
-
-// Close the database connection
-// $connection->close();
-
 ?>
 
 </div>

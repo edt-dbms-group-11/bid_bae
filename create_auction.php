@@ -6,15 +6,12 @@ include_once("database_functions.php");
 
 
 <?php
-session_start();
-
 // If user is not logged in, they should not be able to use this page.
 if (!isset($_SESSION) || $_SESSION == null)  {
   echo('<div class="text-center">You\'re not logged in. Please re-login if this was a mistake</div>');
   header('refresh:3;url=browse.php');
 }
 
-// Assuming seller_id is stored in the session
 $seller_id = $_SESSION['id'];
 ?>
 
@@ -23,6 +20,16 @@ $seller_id = $_SESSION['id'];
 <!-- Create auction form -->
 <div style="max-width: 800px; margin: 10px auto">
   <h2 class="my-3">Create new auction</h2>
+  <?php 
+    if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+      echo('<div class="alert alert-danger" role="alert">Error creating auction. Please fix the following issues:<br>');
+      foreach ($_SESSION['errors'] as $error) {
+          echo('- ' . $error . '<br>');
+      }
+      echo('</div>');
+
+      unset($_SESSION['errors']);
+  }?>
   <div class="card">
     <div class="card-body">
       <form method="post" action="create_auction_result.php">
@@ -106,7 +113,7 @@ $seller_id = $_SESSION['id'];
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <input type="number" class="form-control" id="auctionStartPrice" name="auctionStartPrice">
+              <input min="1" type="number" class="form-control" id="auctionStartPrice" name="auctionStartPrice">
             </div>
             <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount.</small>
           </div>
@@ -118,7 +125,7 @@ $seller_id = $_SESSION['id'];
               <div class="input-group-prepend">
                 <span class="input-group-text">£</span>
               </div>
-              <input type="number" class="form-control" id="auctionReservePrice" name="auctionReservePrice">
+              <input min="1" type="number" class="form-control" id="auctionReservePrice" name="auctionReservePrice">
             </div>
             <small id="reservePriceHelp" class="form-text text-muted">Optional. Auctions that end below this price will not go through. This value is not displayed in the auction listing.</small>
           </div>

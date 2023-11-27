@@ -24,7 +24,7 @@ function display_time_remaining($interval) {
 }
 
 // This function prints an HTML <li> element containing an auction listing
-function print_listing_li($item_id, $title, $desc, $price, $num_bids, $end_time)
+function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time)
 {
   // Truncate long descriptions
   if (strlen($desc) > 250) {
