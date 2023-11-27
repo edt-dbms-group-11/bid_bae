@@ -34,7 +34,7 @@ include_once("database_functions.php");
         <select class="form-control" id="cat" name="cat">
           <option <?php echo (!isset($_GET['cat']) || $_GET['cat'] === 'all') ? 'selected' : ''; ?> value="all">All categories</option>
           <?php foreach ($categories as $category): ?>
-            <option <?php echo ($_GET['cat'] === $category['id']) ? 'selected' : ''; ?> value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+            <option <?php echo (isset($_GET['cat']) && $_GET['cat'] === $category['id']) ? 'selected' : ''; ?> value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -44,8 +44,8 @@ include_once("database_functions.php");
         <label class="mx-2" for="order_by">Sort by:</label>
         <select class="form-control" id="order_by" name="order_by">
           <option <?php echo (!isset($_GET['order_by']) || $_GET['order_by'] === 'date') ? 'selected' : ''; ?> value="date">Soonest expiry</option>
-          <option <?php echo ($_GET['order_by'] === 'pricelow') ? 'selected' : ''; ?> value="pricelow">Price (low to high)</option>
-          <option <?php echo ($_GET['order_by'] === 'pricehigh') ? 'selected' : ''; ?> value="pricehigh">Price (high to low)</option>
+          <option <?php echo (isset($_GET['order_by']) && $_GET['order_by'] === 'pricelow') ? 'selected' : ''; ?> value="pricelow">Price (low to high)</option>
+          <option <?php echo (isset($_GET['order_by']) && $_GET['order_by'] === 'pricehigh') ? 'selected' : ''; ?> value="pricehigh">Price (high to low)</option>
         </select>
       </div>
     </div>
