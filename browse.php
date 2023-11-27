@@ -6,7 +6,7 @@ include_once("database_functions.php");
 
 <div class="container">
 
-<h2 class="my-3">Browse listings</h2>
+<h2 class="my-3">Browse all auctions</h2>
 
 <div id="searchSpecs">
 <!-- When this form is submitted, this PHP page is what processes it.
@@ -23,7 +23,7 @@ include_once("database_functions.php");
               <i class="fa fa-search"></i>
             </span>
           </div>
-          <input type="text" name="keyword" class="form-control border-left-0" id="keyword" placeholder="Search for keywords">
+          <input type="text" name="keyword" class="form-control border-left-0" id="keyword" placeholder='Search for keywords' value=<?php echo (!isset($_GET['keyword'])) ? '' : $_GET['keyword']; ?>>
         </div>
       </div>
     </div>
@@ -32,9 +32,9 @@ include_once("database_functions.php");
         <label for="cat" class="sr-only">Search within:</label>
         <?php $categories = getCategoriesFromDatabase(); ?>
         <select class="form-control" id="cat" name="cat">
-          <option selected value="all">All categories</option>
+          <option <?php echo (!isset($_GET['cat']) || $_GET['cat'] === 'all') ? 'selected' : ''; ?> value="all">All categories</option>
           <?php foreach ($categories as $category): ?>
-            <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+            <option <?php echo ($_GET['cat'] === $category['id']) ? 'selected' : ''; ?> value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -43,9 +43,9 @@ include_once("database_functions.php");
       <div class="form-inline">
         <label class="mx-2" for="order_by">Sort by:</label>
         <select class="form-control" id="order_by" name="order_by">
-          <option selected value="date">Soonest expiry</option>
-          <option value="pricelow">Price (low to high)</option>
-          <option value="pricehigh">Price (high to low)</option>
+          <option <?php echo (!isset($_GET['order_by']) || $_GET['order_by'] === 'date') ? 'selected' : ''; ?> value="date">Soonest expiry</option>
+          <option <?php echo ($_GET['order_by'] === 'pricelow') ? 'selected' : ''; ?> value="pricelow">Price (low to high)</option>
+          <option <?php echo ($_GET['order_by'] === 'pricehigh') ? 'selected' : ''; ?> value="pricehigh">Price (high to low)</option>
         </select>
       </div>
     </div>
