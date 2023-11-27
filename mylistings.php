@@ -28,30 +28,41 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
     </div>
   </form>
 
-
   <div class="container mt-5">
-
     <ul class="list-group" id="auctions_container">
-      <!-- Loop through user auctions and print a list item for each auction -->
-      <?php
+        <!-- Loop through user auctions and print a list item for each auction -->
+        <?php
 
-      $filter_by = isset($_GET['filter_by']) ? $_GET['filter_by'] : 'all';
-      $user_auctions = getUserAuctionsByFilter($user_id, $filter_by);
+        $filter_by = isset($_GET['filter_by']) ? $_GET['filter_by'] : 'all';
+        $user_auctions = getUserAuctionsByFilter($user_id, $filter_by);
 
-      foreach ($user_auctions as $auction) {
-        $item_id = $auction['item_id'];
-        $title = $auction['title'];
-        $description = $auction['description'];
-        $current_price = $auction['current_price'];
-        $num_bids = $auction['num_bids'];
-        $end_date = new DateTime($auction['end_time']);
+        // Check if there are auctions to display
+        if (empty($user_auctions)) {
+            // Display a message or badge for no results
+            echo '<div class="alert alert-info" role="alert">You have no listings.</div>';
+        } else {
+            // Proceed to display the list of auctions
+            echo '<div class="container mt-5">';
+            echo '<ul class="list-group">';
 
-        // Use the function defined in utilities.php
-        print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
-      }
-      ?>
+            // Loop through user auctions and print a list item for each auction
+            foreach ($user_auctions as $auction) {
+                $item_id = $auction['item_id'];
+                $title = $auction['title'];
+                $description = $auction['description'];
+                $current_price = $auction['current_price'];
+                $num_bids = $auction['num_bids'];
+                $end_date = new DateTime($auction['end_time']);
+
+                // Use the function defined in utilities.php
+                print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+            }
+            echo '</ul>';
+            echo '</div>';
+        }
+        ?>
     </ul>
 
-  </div>
+</div>
 
-  <?php include_once("footer.php") ?>
+<?php include_once("footer.php") ?>
