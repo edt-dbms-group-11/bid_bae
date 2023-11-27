@@ -30,6 +30,15 @@ $seller_id = $_SESSION['id'];
 
       unset($_SESSION['errors']);
   }?>
+  <?php 
+      if (isset($_SESSION['success']) && $_SESSION['success'] === 'auction_create_success') {
+          echo('<div class="alert alert-success" role="alert">Great! Your auction is now created<br>');
+          echo('<span>You can view it <a href="mylistings.php">here</a></span>');
+          echo('</div>');
+
+          unset($_SESSION['success']);
+      }
+  ?>
   <div class="card">
     <div class="card-body">
       <form method="post" action="create_auction_result.php">
