@@ -215,6 +215,8 @@ function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
     INNER JOIN `User` AS u
     ON
         a.seller_id = u.id
+    ORDER BY
+        b.id DESC
     LIMIT ?, ?;";
 
   $stmt = $connection->prepare($auction_history_query);
