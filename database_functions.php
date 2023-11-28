@@ -73,34 +73,22 @@ function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
     }
 }
 
-// Function to get categories from the database
 function getCategoriesFromDatabase()
 {
     global $connection;
-    // Create connection
-    //$connection = connectToDatabase();
 
-    // Query to fetch categories from the category table
     $sql = "SELECT id, name FROM category";
-
-    // Execute the query
     $result = $connection->query($sql);
 
     // Check if there are rows returned
     if ($result->num_rows > 0) {
-        // Fetch categories and store them in an array
         $categories = array();
         while ($row = $result->fetch_assoc()) {
             $categories[] = $row;
         }
 
-        // Close the database connection
-        // $conn->close();
-
         return $categories;
     } else {
-        // If no categories are found, return an empty array
-        // $conn->close();
         return array();
     }
 }
@@ -167,11 +155,10 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
     $auctions = array();
 
     if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $auctions[] = $row;
-        }
+      while ($row = $result->fetch_assoc()) {
+          $auctions[] = $row;
+      }
     }
-
     return $auctions;
 }
 
@@ -188,5 +175,52 @@ function getRowCount() {  // This function should be called almost immediately a
         }
     }
     return 0;
+}
+
+function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
+  global $connection;
+  $offset_value = ($page_num - 1) * $page_size;
+
+  $auction_history_query = "SELECT SQL_CALC_FOUND_ROWS
+        b.id AS bid_id,
+        b.bid_price AS bid_price,
+        u.display_name AS seller_name,
+        a.seller_id AS seller_id,
+        a.title AS auction_title,
+        a.id AS auction_id,
+        a.start_time AS auction_start_time,
+        a.end_time AS auction_end_time,
+        a.status AS auction_status,
+        (
+            b.bid_price = a.current_price AND b.bid_price = a.end_price AND a.status = 'DONE'
+        ) AS is_winner
+    FROM
+        `Bid` AS b
+    INNER JOIN(
+        SELECT
+            MAX(id) AS max_id,
+            auction_id
+        FROM
+            `Bid`
+        WHERE
+            user_id = $user_id
+        GROUP BY
+            auction_id
+    ) AS max_bid
+    ON
+        b.id = max_bid.max_id
+    INNER JOIN `Auction` AS a
+    ON
+        b.auction_id = a.id
+    INNER JOIN `User` AS u
+    ON
+        a.seller_id = u.id
+    LIMIT ?, ?;";
+
+  $stmt = $connection->prepare($auction_history_query);
+  $stmt->bind_param("ii", $offset_value, $page_size);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  return $result;
 }
 ?>
