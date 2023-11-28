@@ -22,8 +22,7 @@ function display_time_remaining($interval) {
 }
 
 // This function prints an HTML <li> element containing an auction listing
-function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time)
-{
+function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time) {
   // Truncate long descriptions
   if (strlen($desc) > 250) {
     $desc_shortened = substr($desc, 0, 250) . '...';
@@ -59,4 +58,49 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
       </li>'
     );
   }
+
+
+function getBadgeClass ($status) {
+  $badgeClass = 'badge-success';
+  if ($status == 'IN_PROGRESS') {
+    $badgeClass = 'badge-info';
+  } elseif ($status == 'DONE') {
+    $badgeClass = 'badge-success';
+  } elseif ($status == 'ENDED') {
+    $badgeClass = 'badge-danger';
+  }
+
+  return $badgeClass;
+}
+
+function getAuctionStatusName ($status) {
+  $statusName = 'Soon to begin';
+  if ($status == 'IN_PROGRESS') {
+    $statusName = 'Running';
+  } elseif ($status == 'DONE' || $status == 'DISCARDED') {
+    $statusName = 'Ended';
+  }
+  return $statusName;
+}
+
+function getWinnerClass ($state) {
+  $winnerClass = 'badge-secondary';
+  if ($state == 1) {
+    $winnerClass = "bg-winner";
+  } elseif ($state == 0) {
+    $winnerClass = 'bg-loser';
+  }
+  return $winnerClass;
+}
+
+function getWinnerWording ($state) {
+  $wording = '-';
+  if ($state == 1) {
+    $wording = "WON";
+  } elseif ($state == 0) {
+    $wording = 'OUTBID';
+  }
+  return $wording;
+}
+
 ?>
