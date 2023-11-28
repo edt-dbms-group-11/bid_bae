@@ -86,7 +86,7 @@ function getAuctionStatusName ($status) {
 function getWinnerClass ($state) {
   $winnerClass = 'badge-secondary';
   if ($state == 1) {
-    $winnerClass = "bg-winner";
+    $winnerClass = 'bg-winner';
   } elseif ($state == 0) {
     $winnerClass = 'bg-loser';
   }
@@ -96,11 +96,21 @@ function getWinnerClass ($state) {
 function getWinnerWording ($state) {
   $wording = '-';
   if ($state == 1) {
-    $wording = "WON";
+    $wording = 'WON';
   } elseif ($state == 0) {
     $wording = 'OUTBID';
   }
   return $wording;
+}
+
+function getWinnerBadge ($state) {
+  $badgeClass = '-';
+  if ($state == 1) {
+    $badgeClass = 'badge-success';
+  } elseif ($state == 0) {
+    $badgeClass = 'badge-danger';
+  }
+  return $badgeClass;
 }
 
 ?>

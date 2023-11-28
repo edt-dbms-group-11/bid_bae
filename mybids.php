@@ -43,6 +43,7 @@
       $stat = getAuctionStatusName($auction['auction_status']);
       $wording = getWinnerWording($auction['is_winner']);
       $winnerClass = getWinnerClass($auction['is_winner']);
+      $winnerBadge = getWinnerBadge($auction['is_winner']);
       echo('
         <a href="listing.php?auction_id='. $auction['auction_id'].'" class="list-group-item list-group-item-action py-3 px-4 my-2 border rounded ' . $winnerClass . '">
           <div class="d-flex w-100 justify-content-between">
@@ -53,7 +54,7 @@
           <small>Ends at: ' . $auction['auction_end_time'] . '</small>
           <br>
           <span class="badge badge-pill px-4 py-1 mt-2 ' . $badgeTheme . '">' . $stat . '</span>
-          <span class="badge badge-pill px-4 py-1 mt-2 ' . $badgeTheme . '">' . $wording . '</span>
+          <span class="badge badge-pill px-4 py-1 mt-2 ' . $winnerBadge . '">' . $wording . '</span>
         </a>
       ');
     }
