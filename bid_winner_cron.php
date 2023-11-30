@@ -6,12 +6,13 @@
 
   function updateAuctionStatusAndWinner($connection) {
     error_log("updateAuctionStatusAndWinner");
-    $query = "SELECT id, end_time, reserved_price, seller_id FROM Auction WHERE end_time < NOW() AND status = 'IN_PROGRESS'";
-    $result = mysqli_query($connection, $query);
+    $ending_auction_query = "SELECT id, end_time, reserved_price, seller_id FROM Auction WHERE end_time < NOW() AND status = 'IN_PROGRESS'";
+    $result = mysqli_query($connection, $ending_auction_query);
 
     if ($result) {
       while ($row = mysqli_fetch_assoc($result)) {
         $auction_id = $row['id'];
+        $seller_id = $row['seller_id'];
         $reserved_price = $row['reserved_price'];
 
         // For each ended auction, get the winner
@@ -23,40 +24,39 @@
           $winner_user_id = $winner_info['user_id'];
 
           // Check if winning bid is higher than reserved price, end both auction
-          if ($winning_bid_amount >= $reserved_price) {
-            // Check if balance is sufficient
-            if ($winner_balance >= $winning_bid_amount) {
+          if ($winning_bid_amount >= $reserved_price) {     
+            $querySellerBalance = "SELECT balance FROM User WHERE id = $seller_id";
+            $sellerBalanceResult = mysqli_query($connection, $querySellerBalance);
 
-              $querySellerBalance = "SELECT balance FROM User WHERE id = $seller_id";
-              $curr_seller_balance = mysqli_query($connection, $querySellerBalance);
-
-              if (!$sellerBalanceResult) {
+            if (!$sellerBalanceResult) {
                 die('Error querying seller balance: ' . mysqli_error($connection));
-              }
+            }
 
-              $sellerBalanceRow = mysqli_fetch_assoc($sellerBalanceResult);
-              $seller_balance = $sellerBalanceRow['balance'];
+            $sellerBalanceRow = mysqli_fetch_assoc($sellerBalanceResult);
+            $seller_balance = $sellerBalanceRow['balance'];
 
-              // Each party balance
-              $new_balance_seller = $seller_balance + $winning_bid_amount;
-              $new_balance_buyer = $winner_balance - $winning_bid_amount;
+            // new each party balance
+            $new_balance_seller = $seller_balance + $winning_bid_amount;
+            $new_balance_buyer = $winner_balance - $winning_bid_amount;
 
-              // Perform balance update queries
-              $updateBalanceToBuyerResult = mysqli_query($connection, $updateBalanceToBuyer);
-              $updateBalanceToSellerResult = mysqli_query($connection, $updateBalanceToSeller);
+            // update
+            $updateBalanceToBuyer = "UPDATE User SET balance = $new_balance_buyer WHERE id = $winner_user_id";
+            $updateBalanceToSeller = "UPDATE User SET balance = $new_balance_seller WHERE id = $seller_id";
 
-               // Check if balance updates were successful
-               if (!$updateBalanceToBuyerResult || !$updateBalanceToSellerResult) {
+            $updateBalanceToBuyerResult = mysqli_query($connection, $updateBalanceToBuyer);
+            $updateBalanceToSellerResult = mysqli_query($connection, $updateBalanceToSeller);
+
+            // Check if balance updates were successful
+            if (!$updateBalanceToBuyerResult || !$updateBalanceToSellerResult) {
                 die('Error updating balances: ' . mysqli_error($connection));
-              }
+            }
 
-              // Update auction status and prices
-              $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";
-              $updateResult = mysqli_query($connection, $updateQuery);
+            $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";
+            $updateResult = mysqli_query($connection, $updateQuery);
+            var_dump($updateResult);
 
-              if (!$updateResult) {
-                  die('Error updating auction: ' . mysqli_error($connection));
-              }            
+            if (!$updateResult) {
+              die('Error updating auction: ' . mysqli_error($connection));
             } else {
               die('Insufficient bid amount: ' . mysqli_error($connection));
             }
