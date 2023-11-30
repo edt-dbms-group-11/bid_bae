@@ -203,11 +203,45 @@ function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
   return $result;
 }
 
-function queryUserById ($user_id) {
+function queryUserById($user_id) {
     global $connection;
-    $query = "SELECT * FROM User WHERE id = $user_id";
-    $result = $connection->query($query);
+    $query = "SELECT * FROM User WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $query);
+
+    if ($stmt === false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     $user_data = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
     return $user_data;
+}
+
+function addBalance ($user_id, $amt) {
+    global $connection;
+
+    $user_detail = queryUserById($user_id);
+    $current_balance = $user_detail['balance'];
+    $new_balance = $current_balance + $amt;
+
+    $update_query = "UPDATE User SET balance = ? WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $update_query);
+    
+    if ($stmt == false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "ii", $new_balance, $user_id);
+    $update_result = mysqli_stmt_execute($stmt);
+
+    if ($update_result == false) {
+        die('Error executing the statement: ' . mysqli_error($connection));
+    }
+    
+    mysqli_stmt_close($stmt);
 }
 ?>

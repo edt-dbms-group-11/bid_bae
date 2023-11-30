@@ -82,6 +82,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 								<a class='dropdown-item' href='create_item.php'>Create New Item</a>
 								<a class='dropdown-item' href='create_auction.php'>Create New Auction</a>
 								<a class='dropdown-item' href='create_category.php'>Add New Category</a>
+								<a class='dropdown-item' href='topup_balance.php'>Topup Balance</a>
 							</div>
 						</div>
 					</div>";
