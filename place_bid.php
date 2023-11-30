@@ -1,22 +1,21 @@
 <?php
   include_once("database.php");
-  include_once("session_check.php");
-  session_start();
+  include("database_functions.php");
 
+  $auction_id = test_input(($_POST["auction_id"]));
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if bid is not empty
     if (empty($_POST["bid_amount"])) {
         echo "Bid is required";
-        refreshBack();
+        refreshBack($auction_id);
     } else {
       $bid = test_input(($_POST["bid_amount"]));
-      $auction_id = test_input(($_POST["auction_id"]));
       $user_id = test_input(($_POST["user_id"]));
       $current_bid = test_input(isset($_POST["current_bid"]));
 
       if (!preg_match("/^[0-9]*$/",$bid)) {
         echo "Only numbers allowed";
-        refreshBack();
+        refreshBack($auction_id);
       } else if ($bid < $current_bid) {
         echo "Bid must be higher than current bid";
       } else {
@@ -25,28 +24,45 @@
     }
 }
 
-  function insertBid($bid, $auction_id, $user_id, $current_bid) {
+  function validateSufficientBalance ($user_id, $bid_amt) {
     global $connection;
+    $user_detail = queryUserById($user_id);
+    return $user_detail['balance'] >= $bid_amt;
+  }
 
-    $insert_bid_query = "INSERT INTO Bid (auction_id, user_id, bid_price) VALUES (?, ?, ?)";
-    $stmt = mysqli_prepare($connection, $insert_bid_query);
-    if ($stmt === false) {
-        die('Error preparing the statement: ' . mysqli_error($connection));
-    }
-    mysqli_stmt_bind_param($stmt, "iii", $auction_id, $user_id, $bid);
-    $insert_bid_result = mysqli_stmt_execute($stmt);
-    if ($insert_bid_result === false) {
+  function insertBid($bid, $auction_id, $user_id, $current_bid) {
+    $isBalanceSuffice = validateSufficientBalance($user_id, $bid);
+
+    if ($isBalanceSuffice) {
+      global $connection;
+  
+      $insert_bid_query = "INSERT INTO Bid (auction_id, user_id, bid_price) VALUES (?, ?, ?)";
+      $stmt = mysqli_prepare($connection, $insert_bid_query);
+      if ($stmt === false) {
+          die('Error preparing the statement: ' . mysqli_error($connection));
+      }
+      mysqli_stmt_bind_param($stmt, "iii", $auction_id, $user_id, $bid);
+      $insert_bid_result = mysqli_stmt_execute($stmt);
+      if ($insert_bid_result === false) {
         die('Error executing the statement: ' . mysqli_error($connection));
-    }
-
-    if (mysqli_affected_rows($connection) > 0) {
-      updateCurrentAuction($bid, $auction_id);
+      }
+  
+      if (mysqli_affected_rows($connection) > 0) {
+        updateCurrentAuction($bid, $auction_id);
+      } else {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Please retry, bid failed to place']);
+      }
+  
+        mysqli_stmt_close($stmt);
+      
     } else {
-      echo json_encode(['status' => 'error', 'message' => 'Please retry, bid failed to place']);
+      http_response_code(400);
+      header('Content-Type: application/json');
+      echo json_encode(['status' => 'error', 'message' => 'You have insufficient balance. Please top up first!']);
+      exit();
     }
-
-      mysqli_stmt_close($stmt);
-    }
+  }
 
 
 
@@ -80,7 +96,7 @@
     return $data;
   }
 
-  function refreshBack() {
+  function refreshBack($auction_id) {
     header("refresh:1;url=listing.php?auction_id=$auction_id.php");
   }
 
