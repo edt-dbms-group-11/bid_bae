@@ -10,7 +10,6 @@
 <?php
   include_once("header.php");
   include_once("utilities.php");
-  include_once("database_functions.php");
 ?>
 
 <div class="container pt-2 px-4">
