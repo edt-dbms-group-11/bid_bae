@@ -1,10 +1,15 @@
+<?php include_once('database_functions.php') ?>
 <?php
 session_start();
+
+$user_id = null;
+
 if (!isset($_SESSION) || $_SESSION == null) {
 	$_SESSION['is_logged_in'] = false;
 	$_SESSION['email'] = null;
 	$_SESSION['username'] = null;
 	$_SESSION['display_name'] = null;
+	$_SESSION['user_id'] = null;
 } elseif ($_SESSION['username'] != null) {
 	$username = $_SESSION['username'];
 	$display_name = $_SESSION['display_name'];
@@ -12,6 +17,14 @@ if (!isset($_SESSION) || $_SESSION == null) {
 	$is_logged_in = true;
 	$user_id = $_SESSION['id'];
 }
+?>
+
+<?php
+  $user_balance = 0;
+	if ($user_id) {
+		$user_detail = queryUserById($user_id);
+		$user_balance = $user_detail['balance'];
+	}
 ?>
 
 <!doctype html>
@@ -41,10 +54,20 @@ if (!isset($_SESSION) || $_SESSION == null) {
 				<?php
 				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
 					echo "<div class=''>
-							<div class='pt-2 lead text-right text-secondary'>
-								Hello, $display_name!
+							<div class='pt-2 text-right text-secondary'>
+								Hello, <strong>$display_name!</strong>
 							</div>
 						</div>";
+				}?>
+			</li>
+			<li class="nav-item item-name align-self-center px-2">
+				<?php
+				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+					echo "<div class=''>
+						<div class='pt-2 text-right text-secondary'>
+							Balance: <strong>£$user_balance</strong>
+						</div>
+					</div>";
 				}?>
 			</li>
 			<li class="nav-item item-create px-2">
@@ -64,7 +87,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 					</div>";
 				}?>
 			</li>
-			<li class="nav-item item-login px-2">
+			<li class="nav-item item-login">
 				<?php
 				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
 					echo "<div class='row container'>
