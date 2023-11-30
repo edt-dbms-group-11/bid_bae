@@ -2,31 +2,9 @@
 
 include_once('database.php');
 
-// Function to connect to the database
-// function connectToDatabase() 
-// {
-//     // Database connection parameters
-//     $servername = "localhost";
-//     $username = "mamp";
-//     $password = "";
-//     $dbname = "auction_system";
-
-//     // Create connection
-//     $mysqli = new mysqli($servername, $username, $password, $dbname);
-
-//     // Check connection
-//     if ($mysqli->connect_error) {
-//         die("Connection failed: " . $mysqli->connect_error);
-//     }
-
-//     return $mysqli;
-// }
-
 // Function to get seller's available items
 function getSellerItems($seller_id) {
     global $connection;
-
-    // Implement SQL query to fetch items based on seller_id and is_available status
     $sql = "SELECT id, name FROM Item WHERE user_id = $seller_id AND is_available = 1";
     
     $result = mysqli_query($connection, $sql);
@@ -65,7 +43,6 @@ function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
       
     if(mysqli_query($connection,$sql))
     {
-        echo "<script>alert('new record inserted')</script>";
         echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
     }
     else{
@@ -224,5 +201,13 @@ function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
   $stmt->execute();
   $result = $stmt->get_result();
   return $result;
+}
+
+function queryUserById ($user_id) {
+    global $connection;
+    $query = "SELECT * FROM User WHERE id = $user_id";
+    $result = $connection->query($query);
+    $user_data = mysqli_fetch_assoc($result);
+    return $user_data;
 }
 ?>
