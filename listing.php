@@ -8,7 +8,7 @@
 <?php 
   include_once("header.php");
   include_once("database.php");
-  include_once("bid_winner_cron.php")
+  include_once("bid_winner_cron.php");
 ?>
 
 <?php require("utilities.php")?>
@@ -190,7 +190,6 @@
         </div>
         <p><?php echo($auction_description); ?></p>
       </div>
-      <!-- <img src="<?php echo $auction_image; ?>" class="img-fluid" alt="Auction Image" style="height: 500px; object-fit: cover;"> -->
     </div>
     <div class="right col-6">
       <div class="auction-right align-content-around my-1 row">

@@ -31,7 +31,6 @@
       }
 
     // Validate if each item ID belongs to the user
-        error_log(json_encode($_POST['selectedItems']));
         foreach ($_POST['selectedItems'] as $itemId) {
           $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
           $validateItemResult = mysqli_query($connection, $validateItemQuery);
