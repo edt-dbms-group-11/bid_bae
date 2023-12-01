@@ -421,6 +421,7 @@
     let currBid = <?php echo($auction_current_price); ?>;
     let userId = "<?php echo $_SESSION['id']; ?>" || null
     let auctionId = <?php echo($auction_id); ?>;
+    let sellerId = <?php echo($auction_seller_id); ?>;
     let bidAmount = $('#user-bid-input').val().trim();
 
     $.ajax({
@@ -431,6 +432,7 @@
         user_id: userId,
         bid_amount: bidAmount,
         current_bid: currBid,
+        seller_id: sellerId
       },
       success: function(response) {
         Swal.fire({

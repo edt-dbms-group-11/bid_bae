@@ -3,6 +3,7 @@
   include("database_functions.php");
 
   $auction_id = test_input(($_POST["auction_id"]));
+  $user_detail;
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if bid is not empty
     if (empty($_POST["bid_amount"])) {
@@ -12,6 +13,7 @@
       $bid = test_input(($_POST["bid_amount"]));
       $user_id = test_input(($_POST["user_id"]));
       $current_bid = test_input(isset($_POST["current_bid"]));
+      $seller_id = test_input(isset($_POST["seller_id"]));
 
       if (!preg_match("/^[0-9]*$/",$bid)) {
         echo "Only numbers allowed";
@@ -19,19 +21,30 @@
       } else if ($bid < $current_bid) {
         echo "Bid must be higher than current bid";
       } else {
-        insertBid($bid, $auction_id, $user_id, $current_bid);
+        insertBid($bid, $auction_id, $user_id, $current_bid, $seller_id);
       }
     }
 }
 
-  function validateSufficientBalance ($user_id, $bid_amt) {
+  function validateSufficientBalance ($bid_amt) {
     global $connection;
-    $user_detail = queryUserById($user_id);
     return $user_detail['balance'] >= $bid_amt;
   }
 
-  function insertBid($bid, $auction_id, $user_id, $current_bid) {
+  function validateSelfOwnBid () {
+    global $connection;
+    if ($user_detail['id'] === $seller_id) {
+      http_response_code(400);
+      header('Content-Type: application/json');
+      echo json_encode(['status' => 'error', 'message' => 'You cannot bid on your own auction!']);
+      exit();
+    }
+  }
+
+  function insertBid($bid, $auction_id, $user_id, $current_bid, $seller_id) {
+    $user_detail = queryUserById($user_id);
     $isBalanceSuffice = validateSufficientBalance($user_id, $bid);
+    $isBidSelfOwned = validateSelfOwnBid($seller_id);
 
     if ($isBalanceSuffice) {
       global $connection;
