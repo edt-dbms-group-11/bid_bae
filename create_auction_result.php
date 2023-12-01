@@ -38,7 +38,7 @@
       if (empty($title)) {
           $errors[] = "Title cannot be empty.";
       }
-  
+
       // Validate if each item ID belongs to the user
       foreach ($_POST['selectedItems'] as $itemId) {
           $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";

@@ -2,31 +2,9 @@
 
 include_once('database.php');
 
-// Function to connect to the database
-// function connectToDatabase() 
-// {
-//     // Database connection parameters
-//     $servername = "localhost";
-//     $username = "mamp";
-//     $password = "";
-//     $dbname = "auction_system";
-
-//     // Create connection
-//     $mysqli = new mysqli($servername, $username, $password, $dbname);
-
-//     // Check connection
-//     if ($mysqli->connect_error) {
-//         die("Connection failed: " . $mysqli->connect_error);
-//     }
-
-//     return $mysqli;
-// }
-
 // Function to get seller's available items
 function getSellerItems($seller_id) {
     global $connection;
-
-    // Implement SQL query to fetch items based on seller_id and is_available status
     $sql = "SELECT id, name FROM Item WHERE user_id = $seller_id AND is_available = 1";
     
     $result = mysqli_query($connection, $sql);
@@ -65,7 +43,6 @@ function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
       
     if(mysqli_query($connection,$sql))
     {
-        echo "<script>alert('new record inserted')</script>";
         echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
     }
     else{
@@ -224,5 +201,47 @@ function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
   $stmt->execute();
   $result = $stmt->get_result();
   return $result;
+}
+
+function queryUserById($user_id) {
+    global $connection;
+    $query = "SELECT * FROM User WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $query);
+
+    if ($stmt === false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user_data = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    return $user_data;
+}
+
+function addBalance ($user_id, $amt) {
+    global $connection;
+
+    $user_detail = queryUserById($user_id);
+    $current_balance = $user_detail['balance'];
+    $new_balance = $current_balance + $amt;
+
+    $update_query = "UPDATE User SET balance = ? WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $update_query);
+    
+    if ($stmt == false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "ii", $new_balance, $user_id);
+    $update_result = mysqli_stmt_execute($stmt);
+
+    if ($update_result == false) {
+        die('Error executing the statement: ' . mysqli_error($connection));
+    }
+    
+    mysqli_stmt_close($stmt);
 }
 ?>
