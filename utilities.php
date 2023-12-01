@@ -1,34 +1,9 @@
 <?php
-// require 'includes/PHPMailer.php';
-// require 'includes/SMTP.php';
-// require 'includes/Exception.php';
-//Define name spaces
-// use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\SMTP;
-// use PHPMailer\PHPMailer\Exception;
-declare(strict_types=1);
-$curl = curl_init();
-curl_setopt($curl, CURLOPT_URL, 'https://api.sendgrid.com/v3/'); // Replace with your SendGrid endpoint
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-// Set the SSL certificate file and directory
-curl_setopt($curl, CURLOPT_CAINFO, 'C:\wamp64\bin\php\php7.4.33\cacert.pem');
-curl_setopt($curl, CURLOPT_CAPATH, 'C:\wamp64\bin\php\php7.4.33\cacert.pem');
-
-$result = curl_exec($curl);
-
-if ($result === false) {
-    echo 'Curl error: ' . curl_error($curl);
-} else {
-    echo 'Response: ' . $result;
-}
-
-curl_close($curl);
 
 require 'vendor/autoload.php';
 use \SendGrid\Mail\Mail;
 function sendmail($recipient, $subject, $content){
-  var_dump(openssl_get_cert_locations());
+  //var_dump(openssl_get_cert_locations());
 $email = new Mail();
 $email->setFrom(
   'bidbae.auction@gmail.com',
@@ -111,7 +86,7 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
   echo('
       <li class="list-group-item d-flex justify-content-between">
         <div class="p-2 mr-5"><h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>' . $desc_shortened . '</div>
-        <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . number_format($price, 2) . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
+        <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . $price . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
       </li>'
     );
   }

@@ -15,12 +15,12 @@
         $reserved_price = $row['reserved_price'];
         
         // For each ended auction, get the winner
-        var_dump($row);
+        //var_dump($row);
         $winner_info = findAuctionWinner($connection, $auction_id);
 
         if ($winner_info) {
           $winning_bid_amount = $winner_info['winning_bid'];
-          var_dump($winning_bid_amount);
+          //var_dump($winning_bid_amount);
           // Check if winning bid is higher than reserved price, end both auction
           if ($winning_bid_amount >= $reserved_price) {
             $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";

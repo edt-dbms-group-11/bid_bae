@@ -265,7 +265,7 @@
                 <div class="card-body">
                   <h6 class=""><?= $item['item_name'] ?></h6>
                   <p class="card-text">
-                    <small class="text-muted"><?= $item['description'] ?></small>
+                    <small class="text-muted"><?= $item['item_description'] ?></small>
                   </p>
                 </div>
               </div>
