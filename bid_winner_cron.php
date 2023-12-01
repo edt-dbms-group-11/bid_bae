@@ -53,12 +53,9 @@
 
             $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";
             $updateResult = mysqli_query($connection, $updateQuery);
-            var_dump($updateResult);
 
             if (!$updateResult) {
               die('Error updating auction: ' . mysqli_error($connection));
-            } else {
-              die('Insufficient bid amount: ' . mysqli_error($connection));
             }
             
           } else {
