@@ -94,31 +94,10 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
       <div style="font-size: 1.5em; margin-bottom: 5px;">£' . number_format($price, 2) . '</div>
       <div>' . $num_bids . $bid . '</div>
       <div>' . $time_remaining . '</div>
-    </div> 
-
-    <div class="text-center">
-    <!-- Add modify and delete buttons with appropriate styles and links -->
-    <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="background-color: #007BFF; padding: 8px">Modify</a>
-    <br/>
-    <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger" style="background-color: #FF6347; padding: 8px">Delete</a>
-  </div>
-
+    </div>
   </li>'
   );
-}
-
-function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $end_time)
-{
-  print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time);
-  echo ('<li>
-  <div class="text-center">
-  <!-- Add modify and delete buttons with appropriate styles and links -->
-  <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="background-color: #007BFF; padding: 8px">Modify</a>
-  <br/>
-  <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger" style="background-color: #FF6347; padding: 8px">Delete</a>
-</div>
-</li>');
-}
+};
 
 function getBadgeClass($status)
 {
