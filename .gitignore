@@ -1,0 +1,4 @@
+.DS_Store
+database.php  # contains connection creds
+cron_bash.txt
+cron_log.txt

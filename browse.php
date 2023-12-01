@@ -1,17 +1,20 @@
-<?php include_once("header.php")?>
-<?php require("utilities.php")?>
+<?php
+include_once("header.php");
+include_once("utilities.php");
+include_once("database_functions.php");
+?>
 
 <div class="container">
 
-<h2 class="my-3">Browse listings</h2>
+<h2 class="my-3">Browse all auctions</h2>
 
 <div id="searchSpecs">
 <!-- When this form is submitted, this PHP page is what processes it.
      Search/sort specs are passed to this page through parameters in the URL
      (GET method of passing data to a page). -->
 <form method="get" action="browse.php">
-  <div class="row">
-    <div class="col-md-5 pr-0">
+  <div class="row d-flex">
+    <div class="col-md-4 align-self-end pr-0">
       <div class="form-group">
         <label for="keyword" class="sr-only">Search keyword:</label>
 	    <div class="input-group">
@@ -20,32 +23,43 @@
               <i class="fa fa-search"></i>
             </span>
           </div>
-          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for some changes here">
+          <input type="text" name="keyword" class="form-control border-left-0" id="keyword" placeholder='Search for keywords' value=<?php echo (!isset($_GET['keyword'])) ? '' : $_GET['keyword']; ?>>
         </div>
       </div>
     </div>
-    <div class="col-md-3 pr-0">
+    <div class="col-md-3 align-self-end pr-0">
       <div class="form-group">
         <label for="cat" class="sr-only">Search within:</label>
-        <select class="form-control" id="cat">
-          <option selected value="all">All categories</option>
-          <option value="fill">Fill me in</option>
-          <option value="with">with options</option>
-          <option value="populated">populated from a database?</option>
+        <?php $categories = getCategoriesFromDatabase(); ?>
+        <select class="form-control" id="cat" name="cat">
+          <option <?php echo (!isset($_GET['cat']) || $_GET['cat'] === 'all') ? 'selected' : ''; ?> value="all">All categories</option>
+          <?php foreach ($categories as $category): ?>
+            <option <?php echo (isset($_GET['cat']) && $_GET['cat'] === $category['id']) ? 'selected' : ''; ?> value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
     </div>
-    <div class="col-md-3 pr-0">
-      <div class="form-inline">
+    <div class="col-md-2 align-self-center pr-0">
+      <div class="form-group">
         <label class="mx-2" for="order_by">Sort by:</label>
-        <select class="form-control" id="order_by">
-          <option selected value="pricelow">Price (low to high)</option>
-          <option value="pricehigh">Price (high to low)</option>
-          <option value="date">Soonest expiry</option>
+        <select class="form-control" id="order_by" name="order_by">
+          <option <?php echo (!isset($_GET['order_by']) || $_GET['order_by'] === 'date') ? 'selected' : ''; ?> value="date">Soonest expiry</option>
+          <option <?php echo (isset($_GET['order_by']) && $_GET['order_by'] === 'pricelow') ? 'selected' : ''; ?> value="pricelow">Price (low to high)</option>
+          <option <?php echo (isset($_GET['order_by']) && $_GET['order_by'] === 'pricehigh') ? 'selected' : ''; ?> value="pricehigh">Price (high to low)</option>
         </select>
       </div>
     </div>
-    <div class="col-md-1 px-0">
+    <div class="col-md-2 align-self-center pr-0">
+      <div class="form-group">
+        <label class="mx-2" for="status">Auction Status:</label>
+        <select class="form-control" id="status" name="status">
+          <option <?php echo (!isset($_GET['status']) || $_GET['status'] === 'running') ? 'selected' : ''; ?> value="running">In Progress</option>
+          <option <?php echo (isset($_GET['status']) && $_GET['status'] === 'tostart') ? 'selected' : ''; ?> value="tostart">Yet to start</option>
+          <option <?php echo (isset($_GET['status']) && $_GET['status'] === 'ended') ? 'selected' : ''; ?> value="ended">Ended</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-1 align-self-end mb-3 pr-0">
       <button type="submit" class="btn btn-primary">Search</button>
     </div>
   </div>
@@ -58,73 +72,64 @@
 <?php
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {
-    // TODO: Define behavior if a keyword has not been specified.
+    $keyword = '';
   }
   else {
     $keyword = $_GET['keyword'];
   }
 
   if (!isset($_GET['cat'])) {
-    // TODO: Define behavior if a category has not been specified.
+    $category = 'all';  // Handled in the DB function
   }
   else {
     $category = $_GET['cat'];
   }
   
   if (!isset($_GET['order_by'])) {
-    // TODO: Define behavior if an order_by value has not been specified.
+    $ordering = 'date';
   }
   else {
     $ordering = $_GET['order_by'];
   }
   
+  if (!isset($_GET['status'])) {
+    $status = 'running';
+  }
+  else {
+    $status = $_GET['status'];
+  }
+
   if (!isset($_GET['page'])) {
     $curr_page = 1;
   }
   else {
     $curr_page = $_GET['page'];
   }
-
-  /* TODO: Use above values to construct a query. Use this query to 
-     retrieve data from the database. (If there is no form data entered,
-     decide on appropriate default value/default query to make. */
   
-  /* For the purposes of pagination, it would also be helpful to know the
-     total number of results that satisfy the above query */
-  $num_results = 96; // TODO: Calculate me for real
   $results_per_page = 10;
+
+  $queriedAuctions = getAuctionsFromDatabaseWithParameters($ordering, $category, $keyword, $status, $curr_page, $results_per_page);
+
+  $row_count = getRowCount();
+  $num_results = $row_count;  
   $max_page = ceil($num_results / $results_per_page);
 ?>
 
 <div class="container mt-5">
-
-<!-- TODO: If result set is empty, print an informative message. Otherwise... -->
-
 <ul class="list-group">
 
-<!-- TODO: Use a while loop to print a list item for each auction listing
-     retrieved from the query -->
-
 <?php
-  // Demonstration of what listings will look like using dummy data.
-  $item_id = "87021";
-  $title = "Dummy title";
-  $description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum eget rutrum ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus feugiat, ipsum vel egestas elementum, sem mi vestibulum eros, et facilisis dui nisi eget metus. In non elit felis. Ut lacus sem, pulvinar ultricies pretium sed, viverra ac sapien. Vivamus condimentum aliquam rutrum. Phasellus iaculis faucibus pellentesque. Sed sem urna, maximus vitae cursus id, malesuada nec lectus. Vestibulum scelerisque vulputate elit ut laoreet. Praesent vitae orci sed metus varius posuere sagittis non mi.";
-  $current_price = 30;
-  $num_bids = 1;
-  $end_date = new DateTime('2020-09-16T11:00:00');
-  
-  // This uses a function defined in utilities.php
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
-  
-  $item_id = "516";
-  $title = "Different title";
-  $description = "Very short description.";
-  $current_price = 13.50;
-  $num_bids = 3;
-  $end_date = new DateTime('2020-11-02T00:00:00');
-  
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+
+  if ($row_count == 0) {
+    echo '<div class="alert alert-warning mt-3" role="alert">';
+    echo 'Sorry, no results found. We apologize for the inconvenience.';
+    echo '</div>';
+  }
+  else {
+    foreach ($queriedAuctions as $auction) {
+      print_listing_li($auction['id'], $auction['title'], $auction['description'], $auction['current_price'], $auction['bid_count'], $auction['end_time']);
+    }
+  }
 ?>
 
 </ul>
@@ -192,7 +197,5 @@
 
 
 </div>
-
-
 
 <?php include_once("footer.php")?>
