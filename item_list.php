@@ -1,13 +1,16 @@
 <!-- Fn -->
 <?php
-  
-  include_once('session_check.php');
+
   include_once('header.php');
   include_once('database.php');
 
   $user_id = $_SESSION['id'];
-  $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name FROM Item JOIN Category ON Item.category_id = Category.id WHERE user_id = $user_id;";
-  $result_item = mysqli_query($connection, $items_query);
+  $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name 
+                  FROM Item 
+                  JOIN Category ON Item.category_id = Category.id 
+                  WHERE user_id = $user_id
+                  ORDER BY Item.id DESC";
+$result_item = mysqli_query($connection, $items_query);
   if (!$result_item) {
     die('Invalid query: ' . mysqli_error($connection));
   }
