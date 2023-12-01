@@ -2,95 +2,126 @@
 
 require 'vendor/autoload.php';
 use \SendGrid\Mail\Mail;
-function sendmail($recipient, $subject, $content){
-  var_dump(openssl_get_cert_locations());
-$email = new Mail();
-$email->setFrom(
-  'bidbae.auction@gmail.com',
-  'Bid Bae'
-);
-$email->setSubject($subject);
-// Replace the email address and name with your recipient
-$email->addTo($recipient);
-  
-$email->addContent($content);
-$sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
-try {
-  $response = $sendgrid->send($email);
-  printf("Response status: %d\n\n", $response->statusCode());
 
-  $headers = array_filter($response->headers());
-  echo "Response Headers\n\n";
-  foreach ($headers as $header) {
+function sendmail($recipient, $subject, $content)
+{
+  var_dump(openssl_get_cert_locations());
+  $email = new Mail();
+  $email->setFrom(
+    'bidbae.auction@gmail.com',
+    'Bid Bae'
+  );
+  $email->setSubject($subject);
+  // Replace the email address and name with your recipient
+  $email->addTo($recipient);
+
+  $email->addContent('text/html', $content);
+  $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+  try {
+    $response = $sendgrid->send($email);
+    printf("Response status: %d\n\n", $response->statusCode());
+
+    $headers = array_filter($response->headers());
+    echo "Response Headers\n\n";
+    foreach ($headers as $header) {
       echo '- ' . $header . "\n";
+    }
+  } catch (Exception $e) {
+    echo 'Caught exception: ' . $e->getMessage() . "\n";
   }
-} catch (Exception $e) {
-  echo 'Caught exception: '. $e->getMessage() ."\n";
-}
 }
 
 
 
 // display_time_remaining:
 // Helper function to help figure out what time to display
-function display_time_remaining($interval) {
+function display_time_remaining($interval)
+{
 
-    if ($interval->days == 0 && $interval->h == 0) {
-      // Less than one hour remaining: print mins + seconds:
-      $time_remaining = $interval->format('%im %Ss');
-    }
-    else if ($interval->days == 0) {
-      // Less than one day remaining: print hrs + mins:
-      $time_remaining = $interval->format('%hh %im');
-    }
-    else {
-      // At least one day remaining: print days + hrs:
-      $time_remaining = $interval->format('%ad %hh');
-    }
+  if ($interval->days == 0 && $interval->h == 0) {
+    // Less than one hour remaining: print mins + seconds:
+    $time_remaining = $interval->format('%im %Ss');
+  } else if ($interval->days == 0) {
+    // Less than one day remaining: print hrs + mins:
+    $time_remaining = $interval->format('%hh %im');
+  } else {
+    // At least one day remaining: print days + hrs:
+    $time_remaining = $interval->format('%ad %hh');
+  }
 
   return $time_remaining;
 
 }
 
 // This function prints an HTML <li> element containing an auction listing
-function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time) {
+function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time)
+{
   // Truncate long descriptions
   if (strlen($desc) > 250) {
     $desc_shortened = substr($desc, 0, 250) . '...';
-  }
-  else {
+  } else {
     $desc_shortened = $desc;
   }
-  
+
   // Fix language of bid vs. bids
   if ($num_bids == 1) {
     $bid = ' bid';
-  }
-  else {
+  } else {
     $bid = ' bids';
   }
-  
+
   // Calculate time to auction end
   $now = new DateTime();
   if ($now > $end_time) {
     $time_remaining = 'This auction has ended';
-  }
-  else {
+  } else {
     // Get interval:
     $time_to_end = date_diff($now, $end_time);
     $time_remaining = display_time_remaining($time_to_end) . ' remaining';
   }
-  
-  // Print HTML
-  echo('
-      <li class="list-group-item d-flex justify-content-between">
-        <div class="p-2 mr-5"><h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>' . $desc_shortened . '</div>
-        <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . $price . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
-      </li>'
-    );
-  }
 
-function getBadgeClass ($status) {
+  // Print HTML
+  echo ('
+  <li class="list-group-item d-flex justify-content-between">
+    <div class="p-2 mr-5 text-left" style="max-width: 400px;">
+      <h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>
+      <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
+        ' . $desc_shortened . '
+      </div>
+    </div>
+    
+    <div class="text-right" style="flex-shrink: 5; margin-right: 200px; margin-left: 0px">
+      <div style="font-size: 1.5em; margin-bottom: 5px;">£' . number_format($price, 2) . '</div>
+      <div>' . $num_bids . $bid . '</div>
+      <div>' . $time_remaining . '</div>
+    </div> 
+
+    <div class="text-center">
+    <!-- Add modify and delete buttons with appropriate styles and links -->
+    <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="background-color: #007BFF; padding: 8px">Modify</a>
+    <br/>
+    <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger" style="background-color: #FF6347; padding: 8px">Delete</a>
+  </div>
+
+  </li>'
+  );
+}
+
+function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $end_time)
+{
+  print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_time);
+  echo ('<li>
+  <div class="text-center">
+  <!-- Add modify and delete buttons with appropriate styles and links -->
+  <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="background-color: #007BFF; padding: 8px">Modify</a>
+  <br/>
+  <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger" style="background-color: #FF6347; padding: 8px">Delete</a>
+</div>
+</li>');
+}
+
+function getBadgeClass($status)
+{
   $badgeClass = 'badge-success';
   if ($status == 'IN_PROGRESS') {
     $badgeClass = 'badge-info';
@@ -103,7 +134,8 @@ function getBadgeClass ($status) {
   return $badgeClass;
 }
 
-function getAuctionStatusName ($status) {
+function getAuctionStatusName($status)
+{
   $statusName = 'Soon to begin';
   if ($status == 'IN_PROGRESS') {
     $statusName = 'Running';
@@ -113,7 +145,8 @@ function getAuctionStatusName ($status) {
   return $statusName;
 }
 
-function getWinnerClass ($state) {
+function getWinnerClass($state)
+{
   $winnerClass = 'badge-secondary';
   if ($state == 1) {
     $winnerClass = 'bg-winner';
@@ -123,7 +156,8 @@ function getWinnerClass ($state) {
   return $winnerClass;
 }
 
-function getWinnerWording ($state) {
+function getWinnerWording($state)
+{
   $wording = '-';
   if ($state == 1) {
     $wording = 'WON';
@@ -133,7 +167,8 @@ function getWinnerWording ($state) {
   return $wording;
 }
 
-function getWinnerBadge ($state) {
+function getWinnerBadge($state)
+{
   $badgeClass = '-';
   if ($state == 1) {
     $badgeClass = 'badge-success';
@@ -144,4 +179,3 @@ function getWinnerBadge ($state) {
 }
 
 ?>
-
