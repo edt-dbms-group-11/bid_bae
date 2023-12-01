@@ -4,7 +4,7 @@
   include_once("bid_winner_cron.php")
 ?>
 
-<?php require("utilities.php")?>
+<?php include_once("utilities.php")?>
 <?php
   if ($_SESSION['username'] != null) {
     $username = $_SESSION['username'];
