@@ -16,9 +16,10 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
       <div class="col-md-3">
         <div class="form-group">
           <select class="form-control" id="filter_by" name="filter_by">
-            <option value="available" <?php echo ($filter_by === 'available') ? 'selected' : ''; ?>>Live Auctions</option>
-            <option value="ended" <?php echo ($filter_by === 'ended') ? 'selected' : ''; ?>>Ended Auctions</option>
-            <option value="all" <?php echo ($filter_by === 'all') ? 'selected' : ''; ?>>All Auctions</option>
+            <option value="available"<?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'available') ? 'selected' : ''; ?>>Live Auctions</option>
+            <option value="ended" <?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'ended') ? 'selected' : ''; ?>>Ended Auctions</option>
+            <option value="not_started" <?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'not_started') ? 'selected' : ''; ?>>Future Auctions</option>
+            <option value="all" <?php echo (!isset($_GET['filter_by']) || $_GET['filter_by'] === 'all') ? 'selected' : ''; ?>>All Auctions</option>
           </select>
         </div>
       </div>
@@ -27,7 +28,23 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
       </div>
     </div>
   </form>
-
+  <?php
+    if( $_GET['filter_by'] === 'ended' || $_GET['filter_by'] === 'live' || $_GET['filter_by'] === 'all'){
+      echo '<div class="container mt-5">';
+      echo '<div class="alert alert-danger" role="alert">';
+      if( $_GET['filter_by'] === 'ended') {
+        echo ("Ended auctions can't be modified or deleted.");
+      }
+      else if( $_GET['filter_by'] === 'live') {
+        echo ("Live auctions can't be modified or deleted.") ;
+      }
+      else if( $_GET['$filter_by'] === 'all') {
+        echo ("Live and Ended auctions can't be modified or deleted.") ;
+      }
+      echo '</div>';
+      echo '</div>';
+    }
+  ?>
   <div class="container mt-5">
     <ul class="list-group" id="auctions_container">
         <!-- Loop through user auctions and print a list item for each auction -->
@@ -47,15 +64,16 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
 
             // Loop through user auctions and print a list item for each auction
             foreach ($user_auctions as $auction) {
-                $item_id = $auction['item_id'];
+                $auction_id = $auction['auction_id'];
                 $title = $auction['title'];
                 $description = $auction['description'];
                 $current_price = $auction['current_price'];
                 $num_bids = $auction['num_bids'];
                 $end_date = new DateTime($auction['end_time']);
+                $status = $auction['status'];
 
-                // Use the function defined in utilities.php
-                print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+                // Using the function defined in utilities.php
+                modifyDeleteAuctions($auction_id, $title, $description, $current_price, $num_bids, $end_date, $status);
             }
             echo '</ul>';
             echo '</div>';

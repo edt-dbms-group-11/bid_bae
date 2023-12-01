@@ -1,6 +1,7 @@
 <?php include_once("header.php")?>
 <?php include_once("create_auction.php")?>
 <?php include_once("database.php"); ?>
+<?php include_once("database_functions.php"); ?>
 
 <div class="container my-5">
 
@@ -22,62 +23,7 @@
       $startDate = $_POST['auctionStartDate'];
       $endDate = $_POST['auctionEndDate'];
 
-      $seller_id = $_SESSION['id'];
-      $errors = [];
-
-    // Check if title is not empty
-      if (empty($title)) {
-          $errors[] = "Title cannot be empty.";
-      }
-
-    // Validate if each item ID belongs to the user
-        error_log(json_encode($_POST['selectedItems']));
-        foreach ($_POST['selectedItems'] as $itemId) {
-          $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
-          $validateItemResult = mysqli_query($connection, $validateItemQuery);
-
-          if (!$validateItemResult) {
-              echo "Database error: " . mysqli_error($connection);
-              exit;
-          }
-
-          $row = mysqli_fetch_assoc($validateItemResult);
-
-          if ($row['user_id'] != $_SESSION['id']) {
-              $errors[] = "Invalid item selection.";
-          }
-        }
-
-      // Check if start price is a positive number
-      $startPriceInt = filter_var($startPrice, FILTER_VALIDATE_INT);
-      if ((!$startPriceInt || $startPriceInt < 1 || $startPrice != $startPriceInt)) {
-        $errors[] = "Start price must be a positive number.";
-      } 
-
-      // Check if reserve price is a positive number (if provided)
-      $reservePriceInt = filter_var($reservePrice, FILTER_VALIDATE_INT);
-      if (!isset($reservePrice) || trim($reservePrice) === '') {
-          // If reserve price is blank, assign the start price to it
-          $reservePrice = $startPrice;
-      } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
-          // If reserve price is provided but not a positive number, show an error
-          $errors[] = "Reserve price must be a positive number.";
-      } elseif ($reservePrice < $startPrice) {
-          // If reserve price is lower than start price, show an error
-          $errors[] = "Reserve price cannot be lower than the start price.";
-      }
-
-    // Validate start date - you may want to check if the date is in the future
-    if (empty($startDate) || strtotime($startDate) <= time()) {
-        $errors[] = "Invalid start date.";
-    }
-
-    // Validate end date - you may want to check if the date is in the future, and after the start date
-    if (empty($endDate) || strtotime($endDate) <= time()) {
-        $errors[] = "Invalid end date.";
-    } elseif (strtotime($endDate) <= strtotime($startDate)) {
-        $errors[] = "Auction cannot end before it begins.";
-    }
+      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate);
 
       if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
