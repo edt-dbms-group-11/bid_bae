@@ -1,7 +1,8 @@
 <?php 
   include_once("header.php");
   include_once("database.php");
-  include_once("bid_winner_cron.php")
+  include_once("bid_winner_cron.php");
+  include_once("send_mail.php");
 ?>
 
 <?php include_once("utilities.php")?>
@@ -19,6 +20,8 @@
   if (isset($_GET['auction_id'])) {
     $auction_id = $_GET['auction_id'];
     checkValidAuctionId($connection, $auction_id);
+    sendmailbidnotplaced($auction_id);
+
   } else {
     echo("Invalid auction data");
     header("refresh:3;url=browse.php");

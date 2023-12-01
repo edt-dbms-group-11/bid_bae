@@ -1,39 +1,76 @@
 <?php
   include_once("database.php");
+  include_once("database_functions.php");
   include_once("send_mail.php");
-  include_once("utilities.php");
+
   global $connection;
 
   function updateAuctionStatusAndWinner($connection) {
     error_log("updateAuctionStatusAndWinner");
-    $query = "SELECT id, end_time, reserved_price FROM Auction WHERE end_time < NOW() AND status = 'IN_PROGRESS' ORDER BY auction.id ASC";
-    $result = mysqli_query($connection, $query);
+    $ending_auction_query = "SELECT id, end_time, reserved_price, seller_id FROM Auction WHERE end_time < NOW() AND status = 'IN_PROGRESS'";
+    $result = mysqli_query($connection, $ending_auction_query);
 
     if ($result) {
       while ($row = mysqli_fetch_assoc($result)) {
         $auction_id = $row['id'];
+        $seller_id = $row['seller_id'];
         $reserved_price = $row['reserved_price'];
-        
+
         // For each ended auction, get the winner
-        //var_dump($row);
         $winner_info = findAuctionWinner($connection, $auction_id);
 
         if ($winner_info) {
           $winning_bid_amount = $winner_info['winning_bid'];
-          //var_dump($winning_bid_amount);
-          // Check if winning bid is higher than reserved price, end both auction
-          if ($winning_bid_amount >= $reserved_price) {
-            $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";
-          } else {
-            $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = 0 WHERE id = $auction_id";
-          }
+          $winner_balance = $winner_info['balance'];
+          $winner_user_id = $winner_info['user_id'];
 
-          $updateResult = mysqli_query($connection, $updateQuery);
+          // Check if winning bid is higher than reserved price, end both auction
+          if ($winning_bid_amount >= $reserved_price) {     
+            $querySellerBalance = "SELECT balance FROM User WHERE id = $seller_id";
+            $sellerBalanceResult = mysqli_query($connection, $querySellerBalance);
+
+            if (!$sellerBalanceResult) {
+                die('Error querying seller balance: ' . mysqli_error($connection));
+            }
+
+            $sellerBalanceRow = mysqli_fetch_assoc($sellerBalanceResult);
+            $seller_balance = $sellerBalanceRow['balance'];
+
+            // new each party balance
+            $new_balance_seller = $seller_balance + $winning_bid_amount;
+            $new_balance_buyer = $winner_balance - $winning_bid_amount;
+
+            // update
+            $updateBalanceToBuyer = "UPDATE User SET balance = $new_balance_buyer WHERE id = $winner_user_id";
+            $updateBalanceToSeller = "UPDATE User SET balance = $new_balance_seller WHERE id = $seller_id";
+
+            $updateBalanceToBuyerResult = mysqli_query($connection, $updateBalanceToBuyer);
+            $updateBalanceToSellerResult = mysqli_query($connection, $updateBalanceToSeller);
+
+            // Check if balance updates were successful
+            if (!$updateBalanceToBuyerResult || !$updateBalanceToSellerResult) {
+                die('Error updating balances: ' . mysqli_error($connection));
+            }
+
+            $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = $winning_bid_amount WHERE id = $auction_id";
+            $updateResult = mysqli_query($connection, $updateQuery);
+
+            if (!$updateResult) {
+              die('Error updating auction: ' . mysqli_error($connection));
+            }
+            
+          } else {
+            // Update endprice 0 if no high bids
+            $updateQuery = "UPDATE Auction SET status = 'DONE', current_price = $winning_bid_amount, end_price = 0 WHERE id = $auction_id";
+            // Triggers send_email
+            var_dump('hghgvhgv');
+            sendmailbidnotplaced($auction_id);
+          }
 
           if (!$updateResult) {
             die('Error updating auction: ' . mysqli_error($connection));
           }
-          winner_email($winner_info['user_id'], $winner_info['winning_bid'], $auction_id);
+
           // Set all items as unavailable under the auction 
           updateItemStatusForAuction($connection, $auction_id);
         }
@@ -45,11 +82,7 @@
 
   function findAuctionWinner($connection, $auction_id) {
     error_log('findAuctionWinner');
-    echo $auction_id;
-    if(ifBidnotPlaced($auction_id)){
-      return 0;
-    };
-    $query = "SELECT B.user_id, U.display_name, MAX(B.bid_price) AS winning_bid
+    $query = "SELECT B.user_id, U.display_name, U.balance, MAX(B.bid_price) AS winning_bid
               FROM Bid B
               INNER JOIN User U ON B.user_id = U.id
               WHERE B.auction_id = $auction_id
@@ -61,11 +94,13 @@
 
     if ($result) {
       $row = mysqli_fetch_assoc($result);
+
       if ($row) {
         return [
           'user_id' => $row['user_id'],
           'display_name' => $row['display_name'],
-          'winning_bid' => $row['winning_bid']
+          'winning_bid' => $row['winning_bid'],
+          'balance' => $row['balance']
         ];
       } else {
         return null;

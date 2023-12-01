@@ -3,7 +3,7 @@ include_once("database.php");
 include_once("bid_winner_cron.php");
 include_once("utilities.php");
 
-function ifBidnotPlaced($auction_id) {
+function sendmailbidnotplaced($auction_id) {
 global $connection;
 $time_check_query = "SELECT count(bid.id) as bid_count
                     FROM Auction auc
@@ -11,10 +11,10 @@ $time_check_query = "SELECT count(bid.id) as bid_count
                     WHERE auc.id = $auction_id
                     GROUP BY auc.id;";
 $time_check_result = mysqli_query($connection,$time_check_query);
-//var_dump($time_check_result);
+var_dump($time_check_result);
 if ($time_check_result) {
     while ($time_check_row = mysqli_fetch_assoc($time_check_result)) {
-        //var_dump($time_check_row);
+        var_dump($time_check_row);
         if ($time_check_row['bid_count'] == 0){
             email_to_seller($auction_id);
             return true;

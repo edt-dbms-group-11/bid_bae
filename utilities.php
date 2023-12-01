@@ -13,8 +13,8 @@ $email->setSubject($subject);
 // Replace the email address and name with your recipient
 $email->addTo($recipient);
   
-$email->addContent($content);
-$sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+$email->addContent('text/html', $content);
+$sendgrid = new \SendGrid('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');
 try {
   $response = $sendgrid->send($email);
   printf("Response status: %d\n\n", $response->statusCode());
