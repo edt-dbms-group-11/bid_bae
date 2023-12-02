@@ -1,5 +1,6 @@
 <?php
 include_once("header.php");
+include_once("utilities.php");
 include_once("database_functions.php");
 
 $user_id = $_SESSION['id']; // Assuming user is logged in
@@ -89,7 +90,7 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
     </div>
   </form>
   <?php
-    if( ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
+    if( isset($_GET['filter_by']) && ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
       echo '<div class="container mt-5">';
       echo '<div class="alert alert-danger" role="alert">';
 
@@ -122,7 +123,6 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
 
         $filter_by = isset($_GET['filter_by']) ? $_GET['filter_by'] : 'all';
         $user_auctions = getUserAuctionsByFilter($user_id, $filter_by);
-
         // Check if there are auctions to display
         if (empty($user_auctions)) {
             // Display a message or badge for no results

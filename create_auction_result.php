@@ -22,18 +22,23 @@
     header('refresh:3;url=browse.php');
   }
 
-  // Check if the form was submitted
-  if (isset($_POST["auctionsubmit"])) {
-    // Extract form data into variables.
-    $title = $_POST['auctionTitle'];
-    $details = $_POST['auctionDetails'];
-    $startPrice = $_POST['auctionStartPrice'];
-    $reservePrice = $_POST['auctionReservePrice'];
-    $startDate = $_POST['auctionStartDate'];
-    $endDate = $_POST['auctionEndDate'];
-
-    $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description);
-    $success = [];
+    // Check if the form was submitted
+    if (isset($_POST["auctionsubmit"])) {
+      // Extract form data into variables.
+      $title = $_POST['auctionTitle'];
+      $details = $_POST['auctionDetails'];
+      $startPrice = $_POST['auctionStartPrice'];
+      $reservePrice = $_POST['auctionReservePrice'];
+      $startDate = $_POST['auctionStartDate'];
+      $endDate = $_POST['auctionEndDate'];
+      $selectedItems = explode(',', $_POST['selectedItems']);
+      
+      if (!isset($reservePrice) || trim($reservePrice) === '') {
+        // If reserve price is blank, assign the start price to it
+        $reservePrice = $startPrice;
+      }
+      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description);
+      $success = [];
 
     if (!empty($errors)) {
       $_SESSION['errors'] = $errors;
@@ -49,9 +54,11 @@
       if ($result) {
         $auction_id = mysqli_insert_id($connection);
 
-        foreach ($_POST['selectedItems'] as $item_id) {
-          $insertProductQuery = "INSERT INTO Auction_Product (item_id, auction_id) VALUES ('$item_id', '$auction_id')";
-          $insertProductResult = mysqli_query($connection, $insertProductQuery);
+            $selectedItems = explode(',', $_POST['selectedItems']);
+            // Now, add rows to the Auction_Product table
+            foreach ($selectedItems as $item_id) {
+                $insertProductQuery = "INSERT INTO Auction_Product (item_id, auction_id) VALUES ('$item_id', '$auction_id')";
+                $insertProductResult = mysqli_query($connection, $insertProductQuery);
 
           if ($insertProductResult) {
             foreach ($_POST['selectedItems'] as $itemId) {
