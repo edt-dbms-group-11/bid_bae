@@ -394,10 +394,10 @@ function getUserAuctionsByFilter($user_id, $filter)
     global $connection;
 
     // Ensure $filter is a safe value to prevent SQL injection
-    $allowed_filters = ['available', 'ended', 'all', 'not_started'];
+    $allowed_filters = ['live', 'ended', 'all', 'not_started'];
     if (!in_array($filter, $allowed_filters)) {
         throw new InvalidArgumentException("Invalid filter value provided.");
-        return [];
+        return []; 
     }
 
     $sql_query = "SELECT auc.id AS auction_id, auc.title, auc.description, auc.status, auc.current_price, auc.end_time, count(bid.id) as num_bids
@@ -407,8 +407,8 @@ function getUserAuctionsByFilter($user_id, $filter)
 
     // Add filter conditions to the query
     switch ($filter) {
-        case 'available':
-            $sql_query .= " AND auc.end_time > NOW()";
+        case 'live':
+            $sql_query .= " AND auc.start_time < NOW() AND auc.end_time > NOW()";
             break;
         case 'ended':
             $sql_query .= " AND auc.end_time <= NOW()";
