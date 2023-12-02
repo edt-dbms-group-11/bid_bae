@@ -259,7 +259,7 @@ function findInitStateAuction() {
     while ($row = mysqli_fetch_assoc($result)) {
       $auction_id = $row['id'];
 
-      $updateInitAuction = "UPDATE Auction SET status = 'INIT' WHERE id = $auction_id";
+      $updateInitAuction = "UPDATE Auction SET status = 'IN_PROGRESS' WHERE id = $auction_id";
       $updateAuctionResult = mysqli_query($connection, $updateInitAuction);
 
       if (!$updateAuctionResult) {
