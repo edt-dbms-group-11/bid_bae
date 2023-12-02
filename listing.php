@@ -1,7 +1,14 @@
+<style>
+  .alert-purple {
+    background-color: rgba(213, 184, 255) !important;
+  }
+
+</style>
+
 <?php 
   include_once("header.php");
   include_once("database.php");
-  include_once("bid_winner_cron.php")
+  // include_once("bid_winner_cron.php");
 ?>
 
 <?php include_once("utilities.php")?>
@@ -32,6 +39,7 @@
   $auctionLogsList = queryAuctionLogs($connection, $auction_id);
 
   $auction_id = $auctionData['auction_id'];
+  $auction_seller_id = $auctionData['seller_id'];
   $auction_title = $auctionData['title'];
   $auction_description = $auctionData['auction_description'];
   $auction_reserved_price = $auctionData['reserved_price'];
@@ -48,7 +56,7 @@
 
   // TODO(paul): move query to database fn file
   function queryAuctionDetail($connection, $auction_id) {
-    $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
+    $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, seller_id, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
     JOIN Auction ON Auction_Product.auction_id = Auction.id
     JOIN Item ON Auction_Product.item_id = Item.id
     JOIN User ON User.id = Item.user_id
@@ -99,6 +107,7 @@
             'end_time' => $auction['end_time'],
             'start_time' => $auction['start_time'],
             'auction_status' => $auction['auction_status'],
+            'seller_id' => $auction['seller_id'],
             'image_url' => $auction['image_url'],
             'items' => array(),
             'user_display_name' => $auction['display_name'],
@@ -143,8 +152,7 @@
     return $auction_logs;
   }
 
-  ?>
-  
+  ?>  
 
 <?php
 
@@ -161,13 +169,11 @@
     $time_remaining = '' . display_time_remaining($time_to_end) . '';
   }
   
-  // TODO: If the user has a session, use it to make a query to the database
-  //       to determine if the user is already watching this item.
-  //       For now, this is hardcoded.
-  $is_logged_in = true;
-  $watching = false;
 ?>
 
+<?php
+   $is_auction_self_owned = $auction_seller_id == $user_id;
+?>
 
 <div class="container py-4">
   <div class="row flex border border-secondary rounded px-4 pb-3">
@@ -179,7 +185,6 @@
         </div>
         <p><?php echo($auction_description); ?></p>
       </div>
-      <!-- <img src="<?php echo $auction_image; ?>" class="img-fluid" alt="Auction Image" style="height: 500px; object-fit: cover;"> -->
     </div>
     <div class="right col-6">
       <div class="auction-right align-content-around my-1 row">
@@ -191,36 +196,42 @@
             <?php endif; ?>
             </div>
           </div>
-          <div class="auction-buttons">
-            <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
-              <p class="h4">Make this yours</p>
-              <div class="auction-butons-top row">
-                <div class="pl-3 form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="basic-addon1">£</span>
-                    </div>
-                    <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                      <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
+          <?php if ($is_auction_self_owned) { ?>
+            <div class="alert alert-purple">
+              <strong>Warning!</strong> You are not allowed to bid on your own auction.
+            </div>
+          <?php } else { ?>
+            <div class="auction-buttons">
+              <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
+                <p class="h4">Make this yours</p>
+                <div class="auction-butons-top row">
+                  <div class="pl-3 form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">£</span>
+                      </div>
+                      <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid" id="user-bid-input" aria-describedby="basic-addon2">
+                      <div class="input-group-append">
+                        <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled type="button">Place</button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <?php else: ?>
-                <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
-                    <p class="h5 py-3">You've missed the it!</p>
-                    <p>This auction ended due to lack of high-valued bids</p>
                 <?php else: ?>
-                    <p class="h5 py-3">Someone's bought it!</p>
-                    <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
+                  <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
+                      <p class="h5 py-3">You've missed the it!</p>
+                      <p>This auction ended due to lack of high-valued bids</p>
+                  <?php else: ?>
+                      <p class="h5 py-3">Someone's bought it!</p>
+                      <p>This auction has ended. It was sold for £<?php echo number_format($auction_end_price, 2); ?></p>
+                  <?php endif; ?>
                 <?php endif; ?>
-              <?php endif; ?>
-            <div class="pb-2" id="bid-alert-container"></div>
-          </div>
+              <div class="pb-2" id="bid-alert-container"></div>
+            </div>
+          <?php } ?>
           <div class="bottom-content">
             <div class="">
-              <?php if ($now < $auction_end_time_converted): ?>
+              <?php if (($now < $auction_end_time_converted) && !($is_auction_self_owned)): ?>
               <!-- [WIP] TODO: continue watchlist fn -->
               <div id="watch_nowatch" <?php if ($is_logged_in && $watching) echo('style="display: none"');?>>
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to watchlist</button>
@@ -231,7 +242,7 @@
               </div>
               <?php endif ?>
             </div>
-            <div class="bottom-time pt-4">
+            <div class="bottom-time mt-3">
               <?php if ($now > $auction_end_time_converted): ?>
                 <div class="alert alert-warning" role="alert">
                   This auction ended at <?php echo(date_format($auction_end_time_converted, 'j M H:i')) ?>
@@ -278,24 +289,30 @@
       <div class="auction-history--list">
         <div class="container mt-3">
           <p class="lead text-sm">Bid History</p>
-          <table class="table table-sm table-bordered-sm">
-              <thead>
-              <tr>
-                <th>ID </th>
-                <th>Bid Price</th>
-                <th>Display Name</th>
-              </tr>
-              </thead>
-              <tbody>
-              <?php foreach ($auctionLogsList as $log): ?>
-                  <tr>
-                    <td><?= $log->bid_id ?></td>
-                    <td>£<?= $log->bid_price ?></td>
-                    <td><?= $log->display_name ?></td>
-                  </tr>
-              <?php endforeach; ?>
-              </tbody>
-          </table>
+          <?php if (empty($auctionLogsList)): ?>
+            <div class="alert alert-info" role="alert">
+                Lucky! You're one of the first to bid! Place your bid now!
+            </div>
+          <?php else: ?>
+            <table class="table table-sm table-bordered-sm">
+                <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Bid Price</th>
+                      <th>Display Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($auctionLogsList as $log): ?>
+                        <tr>
+                          <td><?= $log->bid_id ?></td>
+                          <td>£<?= $log->bid_price ?></td>
+                          <td><?= $log->display_name ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+          <?php endif; ?>
       </div>
     </div>
   </div>
@@ -399,6 +416,7 @@
     let currBid = <?php echo($auction_current_price); ?>;
     let userId = "<?php echo $_SESSION['id']; ?>" || null
     let auctionId = <?php echo($auction_id); ?>;
+    let sellerId = <?php echo($auction_seller_id); ?>;
     let bidAmount = $('#user-bid-input').val().trim();
 
     $.ajax({
@@ -409,6 +427,7 @@
         user_id: userId,
         bid_amount: bidAmount,
         current_bid: currBid,
+        seller_id: sellerId
       },
       success: function(response) {
         Swal.fire({
@@ -419,12 +438,22 @@
         if (result.isConfirmed) {
           setTimeout(() => {
             window.location.reload()
-          }, 1000);
+          }, 600);
         }
       })
       },
-      error: function(xhr, status, error) {
-        console.log(error);
+      error: function(response) {
+        console.log(response);
+        let errorMessage = response.responseJSON.message || "Something went wrong with the bidding process";
+        Swal.fire({
+          title: "Bid fails to be placed",
+          text: errorMessage,
+          icon: "error"
+        }).then((result) => {
+          setTimeout(() => {
+            window.location.reload()
+          }, 400);
+        })
       }
     });
   }

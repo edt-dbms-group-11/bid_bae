@@ -10,7 +10,6 @@
 <?php
   include_once("header.php");
   include_once("utilities.php");
-  include_once("database_functions.php");
 ?>
 
 <div class="container pt-2 px-4">
@@ -20,7 +19,7 @@
 <?php
   $user_id = $_SESSION['id'];
   $curr_page = isset($_GET['page']) ? $_GET['page'] : 1;
-  $results_per_page = 2;
+  $results_per_page = 6;
   $auctionHistoryList = getPagedAuctionHistory($user_id, $curr_page, $results_per_page);
 
   $row_count = getRowCount();

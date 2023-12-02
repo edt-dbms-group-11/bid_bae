@@ -1,5 +1,6 @@
 <?php
 require 'vendor/autoload.php';
+include_once("database.php");
 use \SendGrid\Mail\Mail;
 
 function sendmail($recipient, $subject, $content)
@@ -29,13 +30,9 @@ function sendmail($recipient, $subject, $content)
   }
 }
 
-
-
-// display_time_remaining:
 // Helper function to help figure out what time to display
 function display_time_remaining($interval)
 {
-
   if ($interval->days == 0 && $interval->h == 0) {
     // Less than one hour remaining: print mins + seconds:
     $time_remaining = $interval->format('%im %Ss');
@@ -70,6 +67,8 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
 
   // Calculate time to auction end
   $now = new DateTime();
+  $end_time = new DateTime($end_time, new DateTimeZone('UTC'));
+
   if ($now > $end_time) {
     $time_remaining = 'This auction has ended';
   } else {
@@ -79,26 +78,15 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
   }
 
   // Print HTML
-  echo ('
-  <li class="list-group-item d-flex justify-content-between">
-    <div class="p-2 mr-5 text-left" style="max-width: 400px;">
-      <h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>
-      <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
-        ' . $desc_shortened . '
-      </div>
-    </div>
-    
-    <div class="text-right" style="flex-shrink: 5; margin-right: 200px; margin-left: 0px">
-      <div style="font-size: 1.5em; margin-bottom: 5px;">£' . number_format($price, 2) . '</div>
-      <div>' . $num_bids . $bid . '</div>
-      <div>' . $time_remaining . '</div>
-    </div>
-  </li>'
-  );
-};
 
-function getBadgeClass($status)
-{
+      echo('<li class="list-group-item d-flex justify-content-between">
+        <div class="p-2 mr-5"><h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>' . $desc_shortened . '</div>
+        <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . number_format($price, 2) . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
+      </li>'
+  );
+}
+
+function getBadgeClass ($status) {
   $badgeClass = 'badge-success';
   if ($status == 'IN_PROGRESS') {
     $badgeClass = 'badge-info';
