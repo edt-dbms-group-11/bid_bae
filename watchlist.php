@@ -9,7 +9,7 @@
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     if ($_SESSION['is_logged_in'] == false) {
-        echo('<div class="text-center">You\'re not logged in. Please login to view this page</div>');
+        echo ('<div class="text-center">You\'re not logged in. Please login to view this page</div>');
         header('refresh:3;url=browse.php');
         exit; // Added exit after header redirect to prevent further code execution
     }
@@ -22,13 +22,13 @@
     $watchlist_items = array();
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
-             $watchlist_items[] = $row;
+            $watchlist_items[] = $row;
         }
     } else {
         // Display error message if query fails
         die('Error: ' . mysqli_error($connection));
     }
-    
+
     $results_per_page = 5;
     $total_items = count($watchlist_items);
     $max_page = ceil($total_items / $results_per_page);
@@ -44,27 +44,28 @@
         $new_result = mysqli_query($connection, $new_query);
         $auction_info;
         if ($new_result) {
-            while($new_row = mysqli_fetch_assoc($new_result)){
+            while ($new_row = mysqli_fetch_assoc($new_result)) {
                 //var_dump($new_row);
                 $auction_info = $new_row;
-            }; 
-                
+            }
+            ;
+
         } else {
             // Display error message if query fails
             die('Error: ' . mysqli_error($connection));
         }
 
-        
+
         // var_dump($auction_info);
         $bids_number_query = "SELECT count(*) FROM Bid WHERE auction_id = {$item['auction_id_aliass']}";
         $bids_result = mysqli_query($connection, $bids_number_query);
 
         if ($bids_result) {
-            while($bids_row = mysqli_fetch_row($bids_result)){
+            while ($bids_row = mysqli_fetch_row($bids_result)) {
                 //var_dump($bids_row);
-            
-            //  $bid_number_row = mysqli_fetch_row($bids_result);
-            $num_bids = $bids_row[0];
+    
+                //  $bid_number_row = mysqli_fetch_row($bids_result);
+                $num_bids = $bids_row[0];
             }
         } else {
             $num_bids = 0;

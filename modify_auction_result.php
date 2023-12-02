@@ -28,15 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submitChanges'])) {
                         reserved_price = '$updated_reservePrice', current_price = '$updated_startPrice', 
                         start_time = '$updated_startDate', end_time = '$updated_endDate'
                         WHERE id = $auction_id";
-        
+
         // Execute the update query
         $result = mysqli_query($connection, $update_query);
 
         if ($result) {
             // Redirect back to mylistings.php after modification
-            echo(
+            echo (
                 '<div class="text-center">Auction successfully updated!</div>'
-            ); 
+            );
             header("refresh:2;url=mylistings.php");
             //header("Location: mylistings.php");
             exit();

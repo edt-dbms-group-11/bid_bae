@@ -167,7 +167,7 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
 }
 
 function getRowCount()
-{  // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
+{ // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
     global $connection;
 
     $sql_query = "SELECT FOUND_ROWS() AS total_rows";

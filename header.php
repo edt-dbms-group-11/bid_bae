@@ -20,12 +20,12 @@ if (!isset($_SESSION) || $_SESSION == null) {
 ?>
 
 <?php
-  $user_balance = 0;
-	if ($user_id) {
-		$user_detail = queryUserById($user_id);
-		$user_balance = $user_detail['balance'];
-		$user_locked_balance = $user_detail['locked_balance'];
-	}
+$user_balance = 0;
+if ($user_id) {
+	$user_detail = queryUserById($user_id);
+	$user_balance = $user_detail['balance'];
+	$user_locked_balance = $user_detail['locked_balance'];
+}
 ?>
 
 <!doctype html>
@@ -59,7 +59,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 								Hello, <strong>$display_name!</strong>
 							</div>
 						</div>";
-				}?>
+				} ?>
 			</li>
 			<li class="nav-item item-create px-2">
 				<?php
@@ -76,7 +76,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 							</div>
 						</div>
 					</div>";
-				}?>
+				} ?>
 			</li>
 			<li class="nav-item item-create px-2">
 				<?php
@@ -93,7 +93,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 							</div>
 						</div>
 					</div>";
-				}?>
+				} ?>
 			</li>
 			<li class="nav-item item-login">
 				<?php
@@ -107,7 +107,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 						</div>";
 				} else {
 					echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
-				}?>
+				} ?>
 			</li>
 		</ul>
 	</nav>
@@ -115,10 +115,10 @@ if (!isset($_SESSION) || $_SESSION == null) {
 		<ul class="navbar-nav align-middle">
 			<li class="nav-item mx-1">
 				<a class="nav-link" href="browse.php">Browse</a>
-			</li>            
+			</li>
 			<?php
-				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
-					echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
+			if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+				echo "<li class='nav-item mx-1'><a class='nav-link' href='mybids.php'>My Bids</a>
 					</li>
 					<li class='nav-item mx-1'>
 						<a class='nav-link' href='item_list.php'>My Items</a>
@@ -129,8 +129,8 @@ if (!isset($_SESSION) || $_SESSION == null) {
 					<li class='nav-item mx-1'>
 						<a class='nav-link' href='recommendations.php'>Recommendation</a>
 					</li>";
-					} 
-			  ?>
+			}
+			?>
 		</ul>
 	</nav>
 
@@ -167,8 +167,12 @@ if (!isset($_SESSION) || $_SESSION == null) {
 
 	<!-- Bootstrap and jQuery JS -->
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+		integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+		integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+		crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
