@@ -54,7 +54,7 @@ function insertBid($bid, $auction_id, $user_id, $current_bid, $seller_id)
   if ($isBalanceSuffice) {
     global $connection;
     updateCurrentUserBalances($bid);
-    updateHighestBidderBalances($bid, $auction_id);
+    updateHighestBidderBalances($auction_id);
     $insert_bid_query = "INSERT INTO Bid (auction_id, user_id, bid_price) VALUES (?, ?, ?)";
     $stmt = mysqli_prepare($connection, $insert_bid_query);
     if ($stmt === false) {
@@ -89,7 +89,6 @@ function updateCurrentUserBalances($bidAmount)
 
   $new_unlocked_balance = $user_detail['balance'] - $bidAmount; // Guaranteed to be positive integer since we verify the balance > bidAmount
   $new_locked_balance = $user_detail['locked_balance'] + $bidAmount;
-
   $update_user_balances_query = "UPDATE User SET balance = ?, locked_balance = ? WHERE id = ?";
 
   $stmt = mysqli_prepare($connection, $update_user_balances_query);
@@ -104,11 +103,11 @@ function updateCurrentUserBalances($bidAmount)
 
 }
 
-function updateHighestBidderBalances($bidAmount, $auctionID)
+function updateHighestBidderBalances($auctionID)
 {
   global $connection;
 
-  $highest_bidder_query = "SELECT user_id FROM Bid WHERE auction = ? ORDER BY bid_timestamp DESC LIMIT 1";
+  $highest_bidder_query = "SELECT user_id, bid_price FROM Bid WHERE auction_id = ? ORDER BY bid_timestamp DESC LIMIT 1";
 
   $stmt = mysqli_prepare($connection, $highest_bidder_query);
   if ($stmt === false) {
@@ -119,16 +118,19 @@ function updateHighestBidderBalances($bidAmount, $auctionID)
   if ($highest_bidder_result === false) {
     die('Error executing the statement: ' . mysqli_error($connection));
   }
-  mysqli_stmt_bind_result($stmt, $col1);
+  mysqli_stmt_bind_result($stmt, $col1, $col2);
   $highest_bidder_user_id = NULL;
+  $last_highest_bid = NULL;
+
   while (mysqli_stmt_fetch($stmt)) {
     $highest_bidder_user_id = $col1;
+    $last_highest_bid = $col2;
   }
 
   $highest_bidder_details = queryUserById($highest_bidder_user_id);
 
-  $new_unlocked_balance = $highest_bidder_details['balance'] + $bidAmount;
-  $new_locked_balance = $highest_bidder_details['locked_balance'] - $bidAmount;
+  $new_unlocked_balance = $highest_bidder_details['balance'] + $last_highest_bid;
+  $new_locked_balance = $highest_bidder_details['locked_balance'] - $last_highest_bid;
 
   $update_user_balances_query = "UPDATE User SET balance = ?, locked_balance = ? WHERE id = ?";
 
