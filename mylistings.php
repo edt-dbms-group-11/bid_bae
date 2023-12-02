@@ -89,10 +89,10 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
     </div>
   </form>
   <?php
-    if( $_GET['filter_by'] !== 'not_started') {
+    if( ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
       echo '<div class="container mt-5">';
       echo '<div class="alert alert-danger" role="alert">';
-      
+
       switch ($_GET['filter_by']) {
           case 'ended':
               echo "Ended auctions can't be modified or deleted.";
@@ -110,7 +110,7 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
               echo "Live and Ended auctions can't be modified or deleted.";
               break;
       }
-  
+
       echo '</div>';
       echo '</div>';
   }  

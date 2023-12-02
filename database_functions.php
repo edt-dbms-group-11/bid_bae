@@ -182,7 +182,7 @@ function getRowCount()
     return 0;
 }
 
-function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate)
+function validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description)
 {
     global $connection;
     $errors = [];
