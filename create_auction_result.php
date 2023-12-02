@@ -31,7 +31,7 @@
       $startDate = $_POST['auctionStartDate'];
       $endDate = $_POST['auctionEndDate'];
 
-      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate);
+      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description);
 
       if (!empty($errors)) {
         $_SESSION['errors'] = $errors;

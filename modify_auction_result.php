@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submitChanges'])) {
     $updated_endDate = $_POST['auctionEndDate'];
 
     // Validate the data using the existing function
-    $errors = validateAuctionData($updated_title, $selectedItems, $updated_details, $updated_startPrice, $updated_reservePrice, $updated_startDate, $updated_endDate);
+    $errors = validateAuctionData($updated_title, $selectedItems, $updated_startPrice, $updated_reservePrice, $updated_startDate, $updated_endDate, $updated_details);
 
     if (empty($errors)) {
         // No validation errors, proceeding with updating auction details
