@@ -7,7 +7,7 @@
   <h2 class="my-3">Create new item</h2>
   <div class="card">
     <div class="card-body">
-      <form method="post" action="create_item_result.php" enctype="multipart/form-data">>
+      <form method="post" action="create_item_result.php" enctype="multipart/form-data">
         <div class="form-group row">
           <label for="itemTitle" class="col-sm-2 col-form-label text-right">Item Name</label>
           <div class="col-sm-10">
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="fileUpload" class="col-sm-2 col-form-label text-right">Select an image to upload</label>
+          <label for="fileUpload" class="col-sm-2 col-form-label text-right">Upload Image</label>
           <div class="col-sm-10">
               <input type="file" class="form-control" id="fileUpload" name="fileUpload" accept =".jpg, .jpeg, .png">
             <small id="image" class="form-text text-muted"><span class="text-danger">* Required.</span> View of the item.</small>
