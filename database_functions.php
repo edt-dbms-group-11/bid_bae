@@ -5,8 +5,6 @@ include_once('database.php');
 // Function to get seller's available items
 function getSellerItems($seller_id) {
     global $connection;
-
-    // Implement SQL query to fetch items based on seller_id and is_available status
     $sql = "SELECT id, name FROM Item WHERE user_id = $seller_id AND is_available = 1";
     
     $result = mysqli_query($connection, $sql);
@@ -69,7 +67,6 @@ function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
       
     if(mysqli_query($connection,$sql))
     {
-        echo "<script>alert('new record inserted')</script>";
         echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
     }
     else{
@@ -77,20 +74,15 @@ function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
     }
 }
 
-// Function to get categories from the database
 function getCategoriesFromDatabase()
 {
     global $connection;
 
-    // Query to fetch categories from the category table
     $sql = "SELECT id, name FROM category";
-
-    // Execute the query
     $result = $connection->query($sql);
 
     // Check if there are rows returned
     if ($result->num_rows > 0) {
-        // Fetch categories and store them in an array
         $categories = array();
         while ($row = $result->fetch_assoc()) {
             $categories[] = $row;
@@ -165,11 +157,10 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
     $auctions = array();
 
     if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $auctions[] = $row;
-        }
+      while ($row = $result->fetch_assoc()) {
+          $auctions[] = $row;
+      }
     }
-
     return $auctions;
 }
 
@@ -187,6 +178,7 @@ function getRowCount() {  // This function should be called almost immediately a
     }
     return 0;
 }
+
 function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate) {
     global $connection;
     $errors = [];
@@ -275,4 +267,94 @@ function updateAuctionDetails($auction_id, $title, $description, $start_price, $
     return $result;
 }
 
+function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
+  global $connection;
+  $offset_value = ($page_num - 1) * $page_size;
+
+  $auction_history_query = "SELECT SQL_CALC_FOUND_ROWS
+        b.id AS bid_id,
+        b.bid_price AS bid_price,
+        u.display_name AS seller_name,
+        a.seller_id AS seller_id,
+        a.title AS auction_title,
+        a.id AS auction_id,
+        a.start_time AS auction_start_time,
+        a.end_time AS auction_end_time,
+        a.status AS auction_status,
+        (
+            b.bid_price = a.current_price AND b.bid_price = a.end_price AND a.status = 'DONE'
+        ) AS is_winner
+    FROM
+        `Bid` AS b
+    INNER JOIN(
+        SELECT
+            MAX(id) AS max_id,
+            auction_id
+        FROM
+            `Bid`
+        WHERE
+            user_id = $user_id
+        GROUP BY
+            auction_id
+    ) AS max_bid
+    ON
+        b.id = max_bid.max_id
+    INNER JOIN `Auction` AS a
+    ON
+        b.auction_id = a.id
+    INNER JOIN `User` AS u
+    ON
+        a.seller_id = u.id
+    ORDER BY
+        b.id DESC
+    LIMIT ?, ?;";
+
+  $stmt = $connection->prepare($auction_history_query);
+  $stmt->bind_param("ii", $offset_value, $page_size);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  return $result;
+}
+
+function queryUserById($user_id) {
+    global $connection;
+    $query = "SELECT * FROM User WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $query);
+
+    if ($stmt === false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user_data = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+
+    return $user_data;
+}
+
+function addBalance ($user_id, $amt) {
+    global $connection;
+
+    $user_detail = queryUserById($user_id);
+    $current_balance = $user_detail['balance'];
+    $new_balance = $current_balance + $amt;
+
+    $update_query = "UPDATE User SET balance = ? WHERE id = ?";
+    $stmt = mysqli_prepare($connection, $update_query);
+    
+    if ($stmt == false) {
+        die('Error on statement: ' . mysqli_error($connection));
+    }
+
+    mysqli_stmt_bind_param($stmt, "ii", $new_balance, $user_id);
+    $update_result = mysqli_stmt_execute($stmt);
+
+    if ($update_result == false) {
+        die('Error executing the statement: ' . mysqli_error($connection));
+    }
+    
+    mysqli_stmt_close($stmt);
+}
 ?>
