@@ -34,17 +34,43 @@
         $category_n = $_POST["auctionCategory"];
       }
     
-      if ((empty($_POST["imageurl"])) or (!filter_var($_POST["imageurl"], FILTER_VALIDATE_URL) === true)) {
-        $imageErr = "Valid Image URL is required";
+      if (empty($_POST["fileUpload"]) && !isset($_FILES["fileUpload"])) {
+        $imageErr = "Valid Image is required";
         echo "<script>alert('$imageErr')</script>";
       } else {
-        $imageurl = $_POST["imageurl"];
+        $fileName = $_FILES["fileUpload"]["name"];
+        $allowedTypes = ["jpg", "jpeg", "png", "gif"]; // Allowed file types
+        $maxFileSize = 5 * 1024 * 1024; // 5 MB (max file size)
+        if (preg_match('/\.[^.]+$/', $fileName, $matches)) {
+          $fileExtension = strtolower(ltrim($matches[0], '.'));
+  
+          // Further processing based on the file extension
+          // ...
+      } else {
+          echo "File name does not have an extension.";
       }
+        
+        $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileSize = $_FILES["fileUpload"]["size"];
+        $fileContent = file_get_contents($_FILES["fileUpload"]["tmp_name"]); // Get file content
+
+        // Check file type
+        if (!in_array($fileType, $allowedTypes)) {
+            echo "Invalid file type. Allowed types: " . implode(", ", $allowedTypes);
+            exit;
+          }
+        if ($fileSize > $maxFileSize) {
+          echo "File size exceeds the limit (5 MB).";
+          exit;
+        }
+        $imageurl = base64_encode($fileContent);
+      }
+    }
     
-      if (!empty($username) && !empty($itemTitle) && !empty($category_n) && !empty($imageurl)){
+      if (!empty($user_id) && !empty($itemTitle) && !empty($category_n) && !empty($imageurl)){
            createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl);
     }
-}   
+
 ?>
 </div>
 <?php include_once("footer.php")?>

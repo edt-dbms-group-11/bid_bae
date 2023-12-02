@@ -3,7 +3,7 @@ include_once("database.php");
 include_once("bid_winner_cron.php");
 include_once("utilities.php");
 
-function ifBidnotPlaced($auction_id) {
+function sendmailbidnotplaced($auction_id) {
 global $connection;
 $time_check_query = "SELECT count(bid.id) as bid_count
                     FROM Auction auc
@@ -11,10 +11,8 @@ $time_check_query = "SELECT count(bid.id) as bid_count
                     WHERE auc.id = $auction_id
                     GROUP BY auc.id;";
 $time_check_result = mysqli_query($connection,$time_check_query);
-//var_dump($time_check_result);
 if ($time_check_result) {
     while ($time_check_row = mysqli_fetch_assoc($time_check_result)) {
-        //var_dump($time_check_row);
         if ($time_check_row['bid_count'] == 0){
             email_to_seller($auction_id);
             return true;
@@ -35,21 +33,16 @@ if ($seller_result) {
     while ($check_all = mysqli_fetch_all($seller_result)) {
         
         foreach ($check_all as $index => $content) {
-            // var_dump($content);
             $auction_id = $content[0];
             $title = $content[10];
             $price = $content[4];
-            //$buyer = $content[10];
             $seller = $content[8];
-            //if ($buyer == NULL) {
                 $sql = "SELECT email
                         FROM user
                         WHERE user.id = $seller";
                 $seller_email = mysqli_fetch_all(mysqli_query($connection, $sql))[0][0];
-                // var_dump($seller_email);
-                $content56 = "<h1>OH NO! YOU have not sold the item ".$title." because no one have even placed a bid! </h1><br>
+                $content56 = "<h5>OH NO! You have not sold the item ".$title." because no one have even placed a bid! </h5><br>
                         <p>Highest offered price: ￡".$price."</p>";
-                var_dump($seller_email);
                 sendmail($seller_email, "OH NO!", $content56);
         
     }
@@ -73,17 +66,17 @@ function winner_email($buyer,$bid_price,$auction_id){
     var_dump($item_title);
     $seller_id = mysqli_fetch_all(mysqli_query($connection, $item_sql))[0][1];
     var_dump($seller_id);
-    $content2 = "<h1>Congratulations! YOU are the winner of the item ". $item_title." </h1><br>
+    $content2 = "<h5>Congratulations! You are the winner of the item ". $item_title." </h5><br>
                 <p>Your offered price: ￡".$bid_price."</p>";
-    //sendmail($buyer_email, "Congratulations!", $content2);
+    sendmail($buyer_email, "Congratulations!", $content2);
     $seller_sql = "SELECT email
             FROM user
             WHERE user.id = $seller_id";
     $seller_email = mysqli_fetch_all(mysqli_query($connection, $seller_sql))[0][0];
     var_dump($seller_email);
-    $content3 = "<h1>Congratulations! YOU have sold the item ".$item_title." </h1><br>
+    $content3 = "<h5>Congratulations! You have sold the item ".$item_title." </h5><br>
                 <p>Highest offered price: ￡".$bid_price."</p>";
-    //sendmail($seller_email, "Congratulations!", $content3);
+    sendmail($seller_email, "Congratulations!", $content3);
 }
 
 function outbid($auction_id){
@@ -109,9 +102,9 @@ function outbid($auction_id){
     if ($outbid_result) {
         while ($outbid_all = mysqli_fetch_all($outbid_result)) {
             foreach ($outbid_all as $index => $content) {
-                $content4 = "<h1>You have been outbid by another buyer for ".$item_title." </h1><br>
+                $content4 = "<h5>You have been outbid by another buyer for ".$item_title." </h5><br>
                 <p>The new price has become: ￡".$max_price."</p>";
-                //sendmail($content[0], "Outbid by another buyer", $content4);
+                sendmail($content[0], "Outbid by another buyer", $content4);
             }
             
 }

@@ -1,11 +1,9 @@
 <?php
-
 require 'vendor/autoload.php';
 use \SendGrid\Mail\Mail;
 
 function sendmail($recipient, $subject, $content)
 {
-  var_dump(openssl_get_cert_locations());
   $email = new Mail();
   $email->setFrom(
     'bidbae.auction@gmail.com',

@@ -46,7 +46,7 @@
   function findAuctionWinner($connection, $auction_id) {
     error_log('findAuctionWinner');
     echo $auction_id;
-    if(ifBidnotPlaced($auction_id)){
+    if(sendmailbidnotplaced($auction_id)){
       return 0;
     };
     $query = "SELECT B.user_id, U.display_name, MAX(B.bid_price) AS winning_bid
