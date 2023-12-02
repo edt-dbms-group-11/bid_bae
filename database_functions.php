@@ -23,6 +23,30 @@ function getSellerItems($seller_id) {
     }
 }
 
+function getAuctionItems($auction_id) {
+    global $connection;
+
+    // Implement SQL query to fetch items based on auction_id
+    $sql = "SELECT i.id, i.name
+            FROM Item AS i
+            JOIN Auction_Product AS ap ON i.id = ap.item_id
+            WHERE ap.auction_id = $auction_id";
+    
+    $result = mysqli_query($connection, $sql);
+
+    if ($result->num_rows > 0) {
+        // Fetch items and store them in an array
+        $items = array();
+        while ($row = $result->fetch_assoc()) {
+            $items[] = $row;
+        }
+
+        return $items;
+    } else {
+        return array();
+    }
+}
+
 function createCategory($categoryTitle, $categoryDesc)
 {
     global $connection;
@@ -65,9 +89,11 @@ function getCategoriesFromDatabase()
 
         return $categories;
     } else {
+        // If no categories are found, return an empty array
         return array();
     }
 }
+
 
 function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword, $status, $page_num, $page_size) {
     global $connection;
@@ -90,7 +116,6 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
             $orderByExpression = 'auc.end_time ASC';
             break;
     }
-
     $statusExpression = '';
     switch ($status) {
         case 'running':
@@ -125,8 +150,8 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
                     LIMIT %u
                     OFFSET %u;
     ";
-    
     $formatted_sql_query = sprintf($sql_query, $statusExpression, $keyword, $keyword, $keyword, $keyword, $orderByExpression, $page_size, $offset_value);
+
     $result = $connection->query($formatted_sql_query);
     $auctions = array();
 
@@ -151,6 +176,94 @@ function getRowCount() {  // This function should be called almost immediately a
         }
     }
     return 0;
+}
+
+function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate) {
+    global $connection;
+    $errors = [];
+
+    // Check if title is not empty
+    if (empty($title)) {
+        $errors[] = "Title cannot be empty.";
+    }
+
+    // Validate if each item ID belongs to the user
+    foreach ($selectedItems as $itemId) {
+        $validateItemQuery = "SELECT user_id FROM Item WHERE id = $itemId";
+        $validateItemResult = mysqli_query($connection, $validateItemQuery);
+
+        if (!$validateItemResult) {
+            echo "Database error: " . mysqli_error($connection);
+            exit;
+        }
+
+        $row = mysqli_fetch_assoc($validateItemResult);
+
+        if ($row['user_id'] != $_SESSION['id']) {
+            $errors[] = "Invalid item selection.";
+        }
+    }
+
+    // Check if start price is a positive number
+    $startPriceInt = filter_var($startPrice, FILTER_VALIDATE_INT);
+    if ((!$startPriceInt || $startPriceInt < 1 || $startPrice != $startPriceInt)) {
+        $errors[] = "Start price must be a positive number.";
+    }
+
+    // Check if reserve price is a positive number (if provided)
+    $reservePriceInt = filter_var($reservePrice, FILTER_VALIDATE_INT);
+    if (!isset($reservePrice) || trim($reservePrice) === '') {
+        // If reserve price is blank, assign the start price to it
+        $reservePrice = $startPrice;
+    } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
+        // If reserve price is provided but not a positive number, show an error
+        $errors[] = "Reserve price must be a positive number.";
+    } elseif ($reservePrice < $startPrice) {
+        // If reserve price is lower than start price, show an error
+        $errors[] = "Reserve price cannot be lower than the start price.";
+    }
+
+    // Validate start date - you may want to check if the date is in the future
+    if (empty($startDate) || strtotime($startDate) <= time()) {
+        $errors[] = "Invalid start date.";
+    }
+
+    // Validate end date - you may want to check if the date is in the future, and after the start date
+    if (empty($endDate) || strtotime($endDate) <= time()) {
+        $errors[] = "Invalid end date.";
+    } elseif (strtotime($endDate) <= strtotime($startDate)) {
+        $errors[] = "Auction cannot end before it begins.";
+    }
+
+    return $errors;
+}
+
+function updateAuctionDetails($auction_id, $title, $description, $start_price, $reserve_price, $start_date, $end_date) {
+    global $connection; // Assuming you have a database connection
+
+    // TODO: Add any necessary validation or sanitization for user inputs
+
+    // Use prepared statements to prevent SQL injection
+    $sql = "UPDATE Auction
+            SET title = ?, description = ?, start_price = ?, reserve_price = ?, start_time = ?, end_time = ?
+            WHERE id = ?";
+
+    $stmt = $connection->prepare($sql);
+
+    if (!$stmt) {
+        return false; // Failed to prepare statement
+    }
+
+    // Bind parameters
+    $stmt->bind_param("ssddssi", $title, $description, $start_price, $reserve_price, $start_date, $end_date, $auction_id);
+
+    // Execute the statement
+    $result = $stmt->execute();
+
+    // Close the statement
+    $stmt->close();
+
+    return $result;
 }
 
 function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
