@@ -217,10 +217,7 @@ function validateAuctionData($title, $selectedItems, $startPrice, $reservePrice,
 
     // Check if reserve price is a positive number (if provided)
     $reservePriceInt = filter_var($reservePrice, FILTER_VALIDATE_INT);
-    if (!isset($reservePrice) || trim($reservePrice) === '') {
-        // If reserve price is blank, assign the start price to it
-        $reservePrice = $startPrice;
-    } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
+    if (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
         // If reserve price is provided but not a positive number, show an error
         $errors[] = "Reserve price must be a positive number.";
     } elseif ($reservePrice < $startPrice) {
