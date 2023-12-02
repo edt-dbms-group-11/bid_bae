@@ -1,16 +1,30 @@
+<?php include_once('database_functions.php') ?>
 <?php
 session_start();
+
+$user_id = null;
+
 if (!isset($_SESSION) || $_SESSION == null) {
 	$_SESSION['is_logged_in'] = false;
 	$_SESSION['email'] = null;
 	$_SESSION['username'] = null;
 	$_SESSION['display_name'] = null;
+	$_SESSION['user_id'] = null;
 } elseif ($_SESSION['username'] != null) {
 	$username = $_SESSION['username'];
 	$display_name = $_SESSION['display_name'];
 	$email = $_SESSION['email'];
 	$is_logged_in = true;
+	$user_id = $_SESSION['id'];
 }
+?>
+
+<?php
+  $user_balance = 0;
+	if ($user_id) {
+		$user_detail = queryUserById($user_id);
+		$user_balance = $user_detail['balance'];
+	}
 ?>
 
 <!doctype html>
@@ -34,39 +48,59 @@ if (!isset($_SESSION) || $_SESSION == null) {
 
 	<!-- Navbars -->
 	<nav class="navbar navbar-expand navbar-light bg-light mx-2">
-		<a class="navbar-brand" href="#">BidBae</a>
-		<ul class="navbar-nav ml-auto">
-			<li class="nav-item">
+		<a class="navbar-brand" href="browse.php">BidBae</a>
+		<ul class="navbar-nav justify-content-end w-100 container">
+			<li class="nav-item item-name col-3 align-self-center">
 				<?php
 				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
-					echo "<div class='container'>
-						<div class='row'>
-							<div class='col-6 p-2 lead text-center text-secondary'>
-								Hello, $display_name!
+					echo "<div class=''>
+							<div class='pt-2 text-right text-secondary'>
+								Hello, <strong>$display_name!</strong>
 							</div>
-							<div class='col-3 mt-1'>
-									<div class='dropdown'>
-											<button class='btn btn-outline-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-													Create
-											</button>
-											<div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-											<a class='dropdown-item' href='create_item.php'>Create New Item</a>
-												<a class='dropdown-item' href='create_auction.php'>Create New Auction</a>
-												<a class='dropdown-item' href='create_category.php'>Add New Category</a>
-											</div>
-									</div>
-							</div>
-							<div class='col-3 mt-1'>
-									<button class='btn btn-outline-secondary'>
-										<a class='text-secondary' href='logout.php'>Logout</a>
-									</button>
+						</div>";
+				}?>
+			</li>
+			<li class="nav-item item-name align-self-center px-2">
+				<?php
+				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+					echo "<div class=''>
+						<div class='pt-2 text-right text-secondary'>
+							Balance: <strong>£$user_balance</strong>
+						</div>
+					</div>";
+				}?>
+			</li>
+			<li class="nav-item item-create px-2">
+				<?php
+				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+					echo "<div class='row container'>
+						<div class='dropdown mt-1'>
+							<button class='btn btn-outline-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+									Create
+							</button>
+							<div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+								<a class='dropdown-item' href='create_item.php'>Create New Item</a>
+								<a class='dropdown-item' href='create_auction.php'>Create New Auction</a>
+								<a class='dropdown-item' href='create_category.php'>Add New Category</a>
+								<a class='dropdown-item' href='topup_balance.php'>Topup Balance</a>
 							</div>
 						</div>
 					</div>";
+				}?>
+			</li>
+			<li class="nav-item item-login">
+				<?php
+				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
+					echo "<div class='row container'>
+							<div class='mt-1'>
+								<button class='btn btn-outline-secondary'>
+									<a class='text-secondary' href='logout.php'>Logout</a>
+								</button>
+							</div>
+						</div>";
 				} else {
 					echo "<button type='button' class='btn nav-link' data-toggle='modal' data-target='#loginModal'>Login</button>";
-				}
-				?>
+				}?>
 			</li>
 		</ul>
 	</nav>
