@@ -30,6 +30,7 @@
       $reservePrice = $_POST['auctionReservePrice'];
       $startDate = $_POST['auctionStartDate'];
       $endDate = $_POST['auctionEndDate'];
+      $selectedItems = $_POST['selectedItems'];
 
       $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $details);
 
