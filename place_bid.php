@@ -4,6 +4,7 @@
 
   $auction_id = test_input(($_POST["auction_id"]));
   $user_detail;
+  $seller_id;
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if bid is not empty
     if (empty($_POST["bid_amount"])) {
