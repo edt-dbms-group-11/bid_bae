@@ -36,7 +36,7 @@ $result_item = mysqli_query($connection, $items_query);
   foreach ($items_for_current_page as $item) {
     echo '<div id="item-' . $item[0] . '" class="col-md-4 p-2">';
     echo '<div class="card" style="min-height: 450px;">';
-    echo '<img class="card-img-top" src="' . $item[3] . '" alt="' . $item[1] . '" style="height: 200px; object-fit: cover;">';
+    echo '<img class="card-img-top" src="data:image/jpg;charset=utf8;base64,'.$item[3].'" style="height: 200px; object-fit: cover;"/>';
     echo '<hr class="w-100 mb-auto "></hr`>';
     echo '<div class="card-body d-flex flex-column">';
     echo '<h5 class="card-title">' . $item[1] . '</h5>';

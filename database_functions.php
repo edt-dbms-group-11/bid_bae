@@ -2,10 +2,11 @@
 include_once('database.php');
 
 // Function to get seller's available items
-function getSellerItems($seller_id) {
+function getSellerItems($seller_id)
+{
     global $connection;
     $sql = "SELECT id, name FROM Item WHERE user_id = $seller_id AND is_available = 1";
-    
+
     $result = mysqli_query($connection, $sql);
 
     if ($result->num_rows > 0) {
@@ -23,7 +24,8 @@ function getSellerItems($seller_id) {
     }
 }
 
-function getAuctionItems($auction_id) {
+function getAuctionItems($auction_id)
+{
     global $connection;
 
     // Implement SQL query to fetch items based on auction_id
@@ -31,7 +33,7 @@ function getAuctionItems($auction_id) {
             FROM Item AS i
             JOIN Auction_Product AS ap ON i.id = ap.item_id
             WHERE ap.auction_id = $auction_id";
-    
+
     $result = mysqli_query($connection, $sql);
 
     if ($result->num_rows > 0) {
@@ -60,16 +62,16 @@ function createCategory($categoryTitle, $categoryDesc)
     }
 }
 
-function createItem($user_id,$itemTitle,$itemDesc, $category_n, $imageurl){
+function createItem($user_id, $itemTitle, $itemDesc, $category_n, $imageurl)
+{
     global $connection;
     $sql = "INSERT INTO item (user_id,name,description,category_id,image_url) values('$user_id','$itemTitle','$itemDesc', '$category_n', '$imageurl')";
-      
-    if(mysqli_query($connection,$sql))
-    {
-        echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>"; exit;
-    }
-    else{
-        echo "error:" .mysqli_error($connection);
+
+    if (mysqli_query($connection, $sql)) {
+        echo "<script type='text/javascript'>window.top.location='./create_item_success.php';</script>";
+        exit;
+    } else {
+        echo "error:" . mysqli_error($connection);
     }
 }
 
@@ -95,7 +97,8 @@ function getCategoriesFromDatabase()
 }
 
 
-function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword, $status, $page_num, $page_size) {
+function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword, $status, $page_num, $page_size)
+{
     global $connection;
 
     $offset_value = ($page_num - 1) * $page_size;
@@ -141,10 +144,10 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
                         or auc.title LIKE '%%%s%%'
                         )
                     ";
-    if($category_id != 'all') {
+    if ($category_id != 'all') {
         $sql_query .= "AND item.category_id = $category_id ";
     }
-    
+
     $sql_query .= "GROUP BY auc.id
                     ORDER BY %s
                     LIMIT %u
@@ -156,14 +159,15 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
     $auctions = array();
 
     if ($result->num_rows > 0) {
-      while ($row = $result->fetch_assoc()) {
-          $auctions[] = $row;
-      }
+        while ($row = $result->fetch_assoc()) {
+            $auctions[] = $row;
+        }
     }
     return $auctions;
 }
 
-function getRowCount() {  // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
+function getRowCount()
+{  // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
     global $connection;
 
     $sql_query = "SELECT FOUND_ROWS() AS total_rows";
@@ -178,7 +182,8 @@ function getRowCount() {  // This function should be called almost immediately a
     return 0;
 }
 
-function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate) {
+function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate)
+{
     global $connection;
     $errors = [];
 
@@ -238,7 +243,8 @@ function validateAuctionData($title, $selectedItems, $description, $startPrice, 
     return $errors;
 }
 
-function updateAuctionDetails($auction_id, $title, $description, $start_price, $reserve_price, $start_date, $end_date) {
+function updateAuctionDetails($auction_id, $title, $description, $start_price, $reserve_price, $start_date, $end_date)
+{
     global $connection; // Assuming you have a database connection
 
     // TODO: Add any necessary validation or sanitization for user inputs
@@ -266,11 +272,12 @@ function updateAuctionDetails($auction_id, $title, $description, $start_price, $
     return $result;
 }
 
-function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
-  global $connection;
-  $offset_value = ($page_num - 1) * $page_size;
+function getPagedAuctionHistory($user_id, $page_num, $page_size)
+{
+    global $connection;
+    $offset_value = ($page_num - 1) * $page_size;
 
-  $auction_history_query = "SELECT SQL_CALC_FOUND_ROWS
+    $auction_history_query = "SELECT SQL_CALC_FOUND_ROWS
         b.id AS bid_id,
         b.bid_price AS bid_price,
         u.display_name AS seller_name,
@@ -308,14 +315,15 @@ function getPagedAuctionHistory ($user_id, $page_num, $page_size) {
         b.id DESC
     LIMIT ?, ?;";
 
-  $stmt = $connection->prepare($auction_history_query);
-  $stmt->bind_param("ii", $offset_value, $page_size);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  return $result;
+    $stmt = $connection->prepare($auction_history_query);
+    $stmt->bind_param("ii", $offset_value, $page_size);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result;
 }
 
-function queryUserById($user_id) {
+function queryUserById($user_id)
+{
     global $connection;
     $query = "SELECT * FROM User WHERE id = ?";
     $stmt = mysqli_prepare($connection, $query);
@@ -333,7 +341,8 @@ function queryUserById($user_id) {
     return $user_data;
 }
 
-function addBalance ($user_id, $amt) {
+function addBalance($user_id, $amt)
+{
     global $connection;
 
     $user_detail = queryUserById($user_id);
@@ -342,7 +351,7 @@ function addBalance ($user_id, $amt) {
 
     $update_query = "UPDATE User SET balance = ? WHERE id = ?";
     $stmt = mysqli_prepare($connection, $update_query);
-    
+
     if ($stmt == false) {
         die('Error on statement: ' . mysqli_error($connection));
     }
@@ -353,12 +362,13 @@ function addBalance ($user_id, $amt) {
     if ($update_result == false) {
         die('Error executing the statement: ' . mysqli_error($connection));
     }
-    
+
     mysqli_stmt_close($stmt);
 }
 
 
-function findInitStateAuction() {
+function findInitStateAuction()
+{
     global $connection;
 
     error_log('findInitAuction');
@@ -366,18 +376,78 @@ function findInitStateAuction() {
     $result = mysqli_query($connection, $find_init_query);
 
     if (!$result) {
-      die('Error querying init auctions: ' . mysqli_error($connection));
+        die('Error querying init auctions: ' . mysqli_error($connection));
     }
 
     while ($row = mysqli_fetch_assoc($result)) {
-      $auction_id = $row['id'];
+        $auction_id = $row['id'];
 
-      $updateInitAuction = "UPDATE Auction SET status = 'IN_PROGRESS' WHERE id = $auction_id";
-      $updateAuctionResult = mysqli_query($connection, $updateInitAuction);
+        $updateInitAuction = "UPDATE Auction SET status = 'IN_PROGRESS' WHERE id = $auction_id";
+        $updateAuctionResult = mysqli_query($connection, $updateInitAuction);
 
-      if (!$updateAuctionResult) {
-        die('Error updating auction to start: ' . mysqli_error($connection));
-      }
+        if (!$updateAuctionResult) {
+            die('Error updating auction to start: ' . mysqli_error($connection));
+        }
     }
-  }
+}
+
+//used in mylistings.php to retrieve auctions as per user's desired filter
+function getUserAuctionsByFilter($user_id, $filter)
+{
+    global $connection;
+
+    // Ensure $filter is a safe value to prevent SQL injection
+    $allowed_filters = ['available', 'ended', 'all', 'not_started'];
+    if (!in_array($filter, $allowed_filters)) {
+        throw new InvalidArgumentException("Invalid filter value provided.");
+        return [];
+    }
+
+    $sql_query = "SELECT auc.id AS auction_id, auc.title, auc.description, auc.status, auc.current_price, auc.end_time, count(bid.id) as num_bids
+  FROM Auction AS auc
+  LEFT JOIN Bid as bid on bid.auction_id = auc.id
+  WHERE auc.seller_id = $user_id";
+
+    // Add filter conditions to the query
+    switch ($filter) {
+        case 'available':
+            $sql_query .= " AND auc.end_time > NOW()";
+            break;
+        case 'ended':
+            $sql_query .= " AND auc.end_time <= NOW()";
+            break;
+        case 'not_started':
+            $sql_query .= " AND auc.start_time > NOW()";
+        default:
+            break;
+    }
+
+    $sql_query .= " GROUP BY auc.id";
+
+    $result = $connection->query($sql_query);
+    $user_auctions = [];
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $user_auctions[] = $row;
+        }
+    }
+
+    return $user_auctions;
+}
+
+// Function to get auction details by auction_id
+function getAuctionDetailsById($auction_id)
+{
+    global $connection;
+
+    $sql_query = "SELECT * FROM Auction WHERE id = $auction_id";
+    $result = $connection->query($sql_query);
+
+    if ($result->num_rows > 0) {
+        return $result->fetch_assoc();
+    } else {
+        return null;
+    }
+}
 ?>

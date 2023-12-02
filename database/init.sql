@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS Item (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
+    image_url longblob NOT NULL,
     category_id INT NOT NULL,
     user_id INT NOT NULL,
     is_available BOOLEAN NOT NULL DEFAULT true, -- Added column for availability

@@ -1,8 +1,10 @@
 <?php
   include_once("database.php");
+  include_once("send_mail.php");
+  include_once("utilities.php");
   include_once("database_functions.php");
 
-  global $connection;
+  // global $connection;
 
   function updateAuctionStatusAndWinner($connection) {
     error_log("updateAuctionStatusAndWinner");
@@ -14,15 +16,15 @@
         $auction_id = $row['id'];
         $seller_id = $row['seller_id'];
         $reserved_price = $row['reserved_price'];
-
+        
         // For each ended auction, get the winner
+        //var_dump($row);
         $winner_info = findAuctionWinner($connection, $auction_id);
 
         if ($winner_info) {
           $winning_bid_amount = $winner_info['winning_bid'];
           $winner_balance = $winner_info['balance'];
           $winner_user_id = $winner_info['user_id'];
-
           // Check if winning bid is higher than reserved price, end both auction
           if ($winning_bid_amount >= $reserved_price) {     
             $querySellerBalance = "SELECT balance FROM User WHERE id = $seller_id";
@@ -66,7 +68,7 @@
           if (!$updateResult) {
             die('Error updating auction: ' . mysqli_error($connection));
           }
-
+          winner_email($winner_info['user_id'], $winner_info['winning_bid'], $auction_id);
           // Set all items as unavailable under the auction 
           updateItemStatusForAuction($connection, $auction_id);
         }
@@ -78,6 +80,9 @@
 
   function findAuctionWinner($connection, $auction_id) {
     error_log('findAuctionWinner');
+    if (sendmailbidnotplaced($auction_id)) {
+      return 0;
+    };
     $query = "SELECT B.user_id, U.display_name, U.balance, MAX(B.bid_price) AS winning_bid
               FROM Bid B
               INNER JOIN User U ON B.user_id = U.id
@@ -90,7 +95,6 @@
 
     if ($result) {
       $row = mysqli_fetch_assoc($result);
-
       if ($row) {
         return [
           'user_id' => $row['user_id'],

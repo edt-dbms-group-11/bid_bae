@@ -11,7 +11,7 @@
   // include_once("bid_winner_cron.php");
 ?>
 
-<?php require("utilities.php")?>
+<?php include_once("utilities.php")?>
 <?php
   if ($_SESSION['username'] != null) {
     $username = $_SESSION['username'];
@@ -270,7 +270,7 @@
           <div class="card px-1 py-1 mx-1 my-1" style="max-width: 300px;">
             <div class="row g-0">
               <div class="col-md-4">
-                <img src="<?= $item['image_url'] ?>" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
+                <img src="data:image/jpg;charset=utf8;base64,'. <?= $item['image_url'] ?> .'" alt="<?= $item['item_name'] ?>" class="img-fluid" object-fit: cover; />
               </div>
               <div class="col-md-8 border-left">
                 <div class="card-body">

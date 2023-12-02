@@ -1,9 +1,69 @@
 <?php
 include_once("header.php");
-include_once("utilities.php");
 include_once("database_functions.php");
 
 $user_id = $_SESSION['id']; // Assuming user is logged in
+?>
+
+<?php 
+
+function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $end_time, $status) {
+  // Truncate long descriptions
+  if (strlen($desc) > 150) {
+    $desc_shortened = substr($desc, 0, 150) . '...';
+  } else {
+    $desc_shortened = $desc;
+  }
+
+  // Fix language of bid vs. bids
+  if ($num_bids == 1) {
+    $bid = ' bid';
+  } else {
+    $bid = ' bids';
+  }
+
+  // Calculate time to auction end
+  $now = new DateTime();
+  if ($now > $end_time) {
+    $time_remaining = 'This auction has ended';
+  } else {
+    // Get interval:
+    $time_to_end = date_diff($now, $end_time);
+    $time_remaining = display_time_remaining($time_to_end) . ' remaining';
+  }
+
+  // Print HTML
+  echo ('
+  <li class="list-group-item row d-flex justify-content-between">
+    <div class="p-2 mr-5 text-left col-6" style="max-width: 400px;">
+      <h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>
+      <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
+        ' . $desc_shortened . '
+      </div>
+    </div>
+    
+    <div class="text-right col-4">
+      <div style="font-size: 1.5em; margin-bottom: 5px;">£' . number_format($price, 2) . '</div>
+      <div>' . $num_bids . $bid . '</div>
+      <div>' . $time_remaining . '</div>
+    </div>');
+    if ($status === "INIT") {
+      echo('<div class="text-center col-2">
+      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="margin:5px background-color: ##63db67; padding: 8px 25px; width: 150px">Modify</a>
+      <br/> 
+      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger submit" style="margin:5px background-color: #f56056; padding: 8px 25px; width: 150px">Delete</a>
+    </div>
+ </li>');
+    }
+    else {
+      echo('<div class="text-center col-2">
+      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="margin:5px background-color: ##63db67; padding: 8px 25px; width: 150px">Modify</a>
+      <br/>
+      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger submit" style="margin:5px background-color: #f56056; padding: 8px 25px; width: 150px">Delete</a>
+    </div>
+ </li>');
+    }
+}
 ?>
 
 <div class="container">
