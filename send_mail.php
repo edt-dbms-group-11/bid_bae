@@ -37,14 +37,17 @@ if ($seller_result) {
             $title = $content[10];
             $price = $content[4];
             $seller = $content[8];
-                $sql = "SELECT email
+                $sql = "SELECT email, opt_in_email
                         FROM user
                         WHERE user.id = $seller";
-                $seller_email = mysqli_fetch_all(mysqli_query($connection, $sql))[0][0];
+                $user_data = mysqli_fetch_all(mysqli_query($connection, $sql));
+                $seller_email = $user_data[0][0];
+                $if_opted = $user_data[0][1];
+                if ($if_opted) {
                 $content56 = "<h5>OH NO! You have not sold the item ".$title." because no one have even placed a bid! </h5><br>
                         <p>Highest offered price: ￡".$price."</p>";
                 sendmail($seller_email, "OH NO!", $content56);
-        
+                }
     }
 }} else {
     // Display error message if query fails
