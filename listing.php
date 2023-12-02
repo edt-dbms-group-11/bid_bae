@@ -8,7 +8,7 @@
 <?php 
   include_once("header.php");
   include_once("database.php");
-  include_once("bid_winner_cron.php");
+  // include_once("bid_winner_cron.php");
 ?>
 
 <?php require("utilities.php")?>
@@ -169,11 +169,6 @@
     $time_remaining = '' . display_time_remaining($time_to_end) . '';
   }
   
-  // TODO: If the user has a session, use it to make a query to the database
-  //       to determine if the user is already watching this item.
-  //       For now, this is hardcoded.
-  $is_logged_in = true;
-  $watching = false;
 ?>
 
 <?php

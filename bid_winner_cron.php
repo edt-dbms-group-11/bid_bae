@@ -126,5 +126,6 @@
     }
   }
 
+  error_log("bid_winner_cron running");
   updateAuctionStatusAndWinner($connection);
 ?>
