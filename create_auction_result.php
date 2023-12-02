@@ -30,8 +30,13 @@
       $reservePrice = $_POST['auctionReservePrice'];
       $startDate = $_POST['auctionStartDate'];
       $endDate = $_POST['auctionEndDate'];
+      $selectedItems = explode(',', $_POST['selectedItems']);
 
-      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description);
+      if (!isset($reservePrice) || trim($reservePrice) === '') {
+        // If reserve price is blank, assign the start price to it
+        $reservePrice = $startPrice;
+      }
+      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $details);
 
       if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
@@ -49,7 +54,6 @@
             // If the insertion was successful, get the auction ID
             $auction_id = mysqli_insert_id($connection);
 
-            $selectedItems = explode(',', $_POST['selectedItems']);
             // Now, add rows to the Auction_Product table
             foreach ($selectedItems as $item_id) {
                 $insertProductQuery = "INSERT INTO Auction_Product (item_id, auction_id) VALUES ('$item_id', '$auction_id')";
