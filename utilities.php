@@ -88,37 +88,34 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
 
   // Print HTML
   echo ('
-  <li class="list-group-item d-flex justify-content-between">
-    <div class="p-2 mr-5 text-left" style="max-width: 400px;">
+  <li class="list-group-item row d-flex justify-content-between">
+    <div class="p-2 mr-5 text-left col-6" style="max-width: 400px;">
       <h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>
       <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
         ' . $desc_shortened . '
       </div>
     </div>
     
-    <div class="text-right" style="flex-shrink: 5; margin-right: 200px; margin-left: 0px">
+    <div class="text-right col-4">
       <div style="font-size: 1.5em; margin-bottom: 5px;">£' . number_format($price, 2) . '</div>
       <div>' . $num_bids . $bid . '</div>
       <div>' . $time_remaining . '</div>
     </div>');
-    echo $status;
     if ($status === "INIT") {
-    echo('<div class="text-center">
-      <!-- Add modify and delete buttons with appropriate styles and links -->
-      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="background-color: #007BFF; padding: 8px">Modify</a>
-      <br/>
-      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger submit" style="background-color: #FF6347; padding: 8px">Delete</a>
+      echo('<div class="text-center col-2">
+      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="margin:5px background-color: ##63db67; padding: 8px 25px; width: 150px">Modify</a>
+      <br/> 
+      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger submit" style="margin:5px background-color: #f56056; padding: 8px 25px; width: 150px">Delete</a>
     </div>
-  </li>');
+ </li>');
     }
     else {
-      echo('<div class="text-center">
-      <!-- Add modify and delete buttons with appropriate styles and links -->
-      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary disabled" style="background-color: #007BFF; padding: 8px">Modify</a>
+      echo('<div class="text-center col-2">
+      <a href="modify_auction.php?auction_id=' . $auction_id . '" class="btn btn-primary" style="margin:5px background-color: ##63db67; padding: 8px 25px; width: 150px">Modify</a>
       <br/>
-      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger disabled" style="background-color: #FF6347; padding: 8px">Delete</a>
+      <a href="delete_auction.php?auction_id=' . $auction_id . '" class="btn btn-danger submit" style="margin:5px background-color: #f56056; padding: 8px 25px; width: 150px">Delete</a>
     </div>
-  </li>');
+ </li>');
     }
 }
 

@@ -16,7 +16,7 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
       <div class="col-md-3">
         <div class="form-group">
           <select class="form-control" id="filter_by" name="filter_by">
-            <option value="available"<?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'available') ? 'selected' : ''; ?>>Live Auctions</option>
+            <option value="live"<?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'live') ? 'selected' : ''; ?>>Live Auctions</option>
             <option value="ended" <?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'ended') ? 'selected' : ''; ?>>Ended Auctions</option>
             <option value="not_started" <?php echo (isset($_GET['filter_by']) && $_GET['filter_by'] === 'not_started') ? 'selected' : ''; ?>>Future Auctions</option>
             <option value="all" <?php echo (!isset($_GET['filter_by']) || $_GET['filter_by'] === 'all') ? 'selected' : ''; ?>>All Auctions</option>
@@ -29,21 +29,31 @@ $user_id = $_SESSION['id']; // Assuming user is logged in
     </div>
   </form>
   <?php
-    if( $_GET['filter_by'] === 'ended' || $_GET['filter_by'] === 'live' || $_GET['filter_by'] === 'all'){
+    if( $_GET['filter_by'] !== 'not_started') {
       echo '<div class="container mt-5">';
       echo '<div class="alert alert-danger" role="alert">';
-      if( $_GET['filter_by'] === 'ended') {
-        echo ("Ended auctions can't be modified or deleted.");
+      
+      switch ($_GET['filter_by']) {
+          case 'ended':
+              echo "Ended auctions can't be modified or deleted.";
+              break;
+  
+          case 'live':
+              echo "Live auctions can't be modified or deleted.";
+              break;
+  
+          case 'all':
+              echo "Live and Ended auctions can't be modified or deleted.";
+              break;
+  
+          default:
+              echo "Live and Ended auctions can't be modified or deleted.";
+              break;
       }
-      else if( $_GET['filter_by'] === 'live') {
-        echo ("Live auctions can't be modified or deleted.") ;
-      }
-      else if( $_GET['$filter_by'] === 'all') {
-        echo ("Live and Ended auctions can't be modified or deleted.") ;
-      }
+  
       echo '</div>';
       echo '</div>';
-    }
+  }  
   ?>
   <div class="container mt-5">
     <ul class="list-group" id="auctions_container">
