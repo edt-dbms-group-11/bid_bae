@@ -24,6 +24,7 @@ if (!isset($_SESSION) || $_SESSION == null) {
 	if ($user_id) {
 		$user_detail = queryUserById($user_id);
 		$user_balance = $user_detail['balance'];
+		$user_locked_balance = $user_detail['locked_balance'];
 	}
 ?>
 
@@ -60,12 +61,19 @@ if (!isset($_SESSION) || $_SESSION == null) {
 						</div>";
 				}?>
 			</li>
-			<li class="nav-item item-name align-self-center px-2">
+			<li class="nav-item item-create px-2">
 				<?php
 				if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] == true) {
-					echo "<div class=''>
-						<div class='pt-2 text-right text-secondary'>
-							Balance: <strong>£$user_balance</strong>
+					echo "<div class='row container'>
+						<div class='dropdown mt-1'>
+							<button class='btn btn-outline-secondary dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+									Balances
+							</button>
+							<div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+								<p class='dropdown-item'>Available Balance: <strong>£$user_balance</strong></p>
+								<p class='dropdown-item'>Locked Balance: <strong>£$user_locked_balance</strong></p>
+								<a class='dropdown-item' href='topup_balance.php'>Topup Balance</a>
+							</div>
 						</div>
 					</div>";
 				}?>
@@ -82,7 +90,6 @@ if (!isset($_SESSION) || $_SESSION == null) {
 								<a class='dropdown-item' href='create_item.php'>Create New Item</a>
 								<a class='dropdown-item' href='create_auction.php'>Create New Auction</a>
 								<a class='dropdown-item' href='create_category.php'>Add New Category</a>
-								<a class='dropdown-item' href='topup_balance.php'>Topup Balance</a>
 							</div>
 						</div>
 					</div>";

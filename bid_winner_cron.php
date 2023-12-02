@@ -4,7 +4,7 @@
   include_once("utilities.php");
   include_once("database_functions.php");
 
-  // global $connection;
+// global $connection;
 
   function updateAuctionStatusAndWinner($connection) {
     error_log("updateAuctionStatusAndWinner");
