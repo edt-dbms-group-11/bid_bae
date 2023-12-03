@@ -13,7 +13,8 @@
       <div class="row d-flex">
         <div class="col-md-4 align-self-end pr-0">
           <div class="form-group">
-            <label for="cat" class="sr-only">Generate recommendations from:</label>
+            <label for="recs" class="sr-only">Generate recommendations from:</label>
+            <p>Generate recommendations from:</p>
             <select class="form-control" id="recs" name="recs">
               <option <?php echo (!isset($_GET['recs']) || $_GET['recs'] === 'bid') ? 'selected' : ''; ?> value="bid">
                 Your bids</option>
