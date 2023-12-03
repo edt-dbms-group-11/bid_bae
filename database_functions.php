@@ -167,7 +167,7 @@ function getAuctionsFromDatabaseWithParameters($order_by, $category_id, $keyword
 }
 
 function getRowCount()
-{  // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
+{ // This function should be called almost immediately after the execution of SQL_CALC_FOUND_ROWS
     global $connection;
 
     $sql_query = "SELECT FOUND_ROWS() AS total_rows";
@@ -182,7 +182,7 @@ function getRowCount()
     return 0;
 }
 
-function validateAuctionData($title, $selectedItems, $description, $startPrice, $reservePrice, $startDate, $endDate)
+function validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description)
 {
     global $connection;
     $errors = [];
@@ -217,10 +217,7 @@ function validateAuctionData($title, $selectedItems, $description, $startPrice, 
 
     // Check if reserve price is a positive number (if provided)
     $reservePriceInt = filter_var($reservePrice, FILTER_VALIDATE_INT);
-    if (!isset($reservePrice) || trim($reservePrice) === '') {
-        // If reserve price is blank, assign the start price to it
-        $reservePrice = $startPrice;
-    } elseif (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
+    if (!$reservePriceInt || $reservePriceInt < 1 || $reservePrice != $reservePriceInt) {
         // If reserve price is provided but not a positive number, show an error
         $errors[] = "Reserve price must be a positive number.";
     } elseif ($reservePrice < $startPrice) {
@@ -397,10 +394,10 @@ function getUserAuctionsByFilter($user_id, $filter)
     global $connection;
 
     // Ensure $filter is a safe value to prevent SQL injection
-    $allowed_filters = ['available', 'ended', 'all', 'not_started'];
+    $allowed_filters = ['live', 'ended', 'all', 'not_started'];
     if (!in_array($filter, $allowed_filters)) {
         throw new InvalidArgumentException("Invalid filter value provided.");
-        return [];
+        return []; 
     }
 
     $sql_query = "SELECT auc.id AS auction_id, auc.title, auc.description, auc.status, auc.current_price, auc.end_time, count(bid.id) as num_bids
@@ -410,8 +407,8 @@ function getUserAuctionsByFilter($user_id, $filter)
 
     // Add filter conditions to the query
     switch ($filter) {
-        case 'available':
-            $sql_query .= " AND auc.end_time > NOW()";
+        case 'live':
+            $sql_query .= " AND auc.start_time < NOW() AND auc.end_time > NOW()";
             break;
         case 'ended':
             $sql_query .= " AND auc.end_time <= NOW()";

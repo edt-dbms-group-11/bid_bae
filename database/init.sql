@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS User (
     email VARCHAR(40) NOT NULL UNIQUE,
     display_name VARCHAR(30) NOT NULL,
     opt_in_email BOOLEAN DEFAULT FALSE,
-    balance FLOAT(2) NOT NULL DEFAULT 0.00
+    balance FLOAT(2) NOT NULL DEFAULT 0.00,
+    locked_balance FLOAT(2) NOT NULL DEFAULT 0.00
 );
 
 -- Create auction table
