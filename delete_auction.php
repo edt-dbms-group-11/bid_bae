@@ -30,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
 
     if ($delete_result) {
         // Redirect to mylistings.php after deletion
-        echo(
+        echo (
             '<div class="text-center">Auction successfully deleted!</div>'
-        ); 
+        );
         header("refresh:2;url=mylistings.php");
         //header("Location: mylistings.php");
         exit();
@@ -46,7 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
 <!-- Display confirmation form for deleting auction -->
 <div class="container mt-5">
     <h2>Delete Auction</h2>
-    <p>Are you sure you want to delete the auction "<?php echo $auction_details['title']; ?>"?</p>
+    <p>Are you sure you want to delete the auction "
+        <?php echo $auction_details['title']; ?>"?
+    </p>
 
     <!-- Delete confirmation form -->
     <form method="post" action="delete_auction.php?auction_id=<?php echo $auction_id; ?>">
