@@ -56,17 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
             // Handle query failure to get item IDs
             echo "Failed to retrieve item IDs. Please try again.";
         }
-    } else {
-        // Handle delete failure
-        echo "Failed to delete the auction. Please try again.";
-    }
 }
 ?>
 
 <!-- Display confirmation form for deleting auction -->
 <div class="container mt-5">
     <h2>Delete Auction</h2>
-    <p>Are you sure you want to delete the auction "<?php echo $auction_details['title']; ?>"?</p>
+    <p>Are you sure you want to delete the auction "
+        <?php echo $auction_details['title']; ?>"?
+    </p>
 
     <!-- Delete confirmation form -->
     <form method="post" action="delete_auction.php?auction_id=<?php echo $auction_id; ?>">
