@@ -3,6 +3,7 @@
 
 include_once('header.php');
 include_once('database.php');
+include_once("session_check.php");
 
 $user_id = $_SESSION['id'];
 $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name 
@@ -15,8 +16,6 @@ if (!$result_item) {
   die('Invalid query: ' . mysqli_error($connection));
 }
 $items = mysqli_fetch_all($result_item);
-
-// var_dump($items);
 ?>
 
 

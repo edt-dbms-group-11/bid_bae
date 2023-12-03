@@ -11,6 +11,7 @@
 <?php
 include_once("header.php");
 include_once("utilities.php");
+include_once("session_check.php");
 ?>
 
 <div class="container pt-2 px-4">
