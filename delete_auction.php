@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
             // Handle query failure to get item IDs
             echo "Failed to retrieve item IDs. Please try again.";
         }
+    }
 }
 ?>
 
