@@ -397,7 +397,7 @@ function getUserAuctionsByFilter($user_id, $filter)
     $allowed_filters = ['live', 'ended', 'all', 'not_started'];
     if (!in_array($filter, $allowed_filters)) {
         throw new InvalidArgumentException("Invalid filter value provided.");
-        return []; 
+        return [];
     }
 
     $sql_query = "SELECT auc.id AS auction_id, auc.title, auc.description, auc.status, auc.current_price, auc.end_time, count(bid.id) as num_bids
@@ -447,4 +447,62 @@ function getAuctionDetailsById($auction_id)
         return null;
     }
 }
+
+function getRecommedationsForUser($user_id, $mode, $page_num, $page_size)
+{
+    global $connection;
+    $offset_value = ($page_num - 1) * $page_size;
+
+    $drop_query = "DROP TABLE IF EXISTS user_$mode, other_$mode;";
+    $create_temp_table_one_query = "
+    CREATE TEMPORARY TABLE user_$mode (
+        user_id INT NOT NULL,
+        auction_id INT NOT NULL
+    )
+    SELECT user_id, auction_id
+    FROM $mode
+    WHERE user_id = $user_id;";
+    
+    $create_temp_table_two_query = "
+    CREATE TEMPORARY TABLE other_$mode (
+        user_id INT NOT NULL,
+        auction_id INT NOT NULL
+    )
+    SELECT user_id, auction_id
+    FROM $mode
+    WHERE user_id != $user_id
+    AND auction_id IN (SELECT auction_id FROM user_$mode);";
+
+    $get_recommendation_query = "
+    SELECT SQL_CALC_FOUND_ROWS auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id) as bid_count, auc.end_time
+    FROM Auction AS auc
+    LEFT JOIN Bid AS bid ON bid.auction_id = auc.id
+    JOIN (
+        SELECT DISTINCT($mode.auction_id)
+        FROM $mode
+        JOIN other_$mode
+        ON $mode.user_id=other_$mode.user_id
+        WHERE $mode.auction_id NOT IN (SELECT auction_id from user_$mode)
+        ) as recs
+    ON recs.auction_id = auc.id
+    GROUP BY auc.id
+    LIMIT $page_size
+    OFFSET $offset_value;";
+
+    $connection->query($drop_query);
+    $connection->query($create_temp_table_one_query);
+    $connection->query($create_temp_table_two_query);
+    $result = $connection->query($get_recommendation_query);
+    
+    // mysqli_query($connection, $formatted_sql_query);
+    $auctions = array();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $auctions[] = $row;
+        }
+    }
+    return $auctions;
+}
+
 ?>
