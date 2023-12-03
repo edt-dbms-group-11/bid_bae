@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!preg_match("/^[0-9]*$/", $bid)) {
       echo "Only numbers allowed";
       refreshBack($auction_id);
-    } else if ($bid < $current_bid) {
+    } else if ($bid <= $current_bid) {
       echo "Bid must be higher than current bid";
     } else {
       insertBid($bid, $auction_id, $user_id, $current_bid, $seller_id);
