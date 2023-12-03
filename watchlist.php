@@ -1,18 +1,12 @@
 <?php include_once("header.php") ?>
 <?php require("utilities.php") ?>
 <?php include_once("database.php") ?>
+<?php include_once("session_check.php") ?>
 
 <div class="container">
     <h2 class="my-3">Watchlist for you</h2>
 
     <?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    if ($_SESSION['is_logged_in'] == false) {
-        echo ('<div class="text-center">You\'re not logged in. Please login to view this page</div>');
-        header('refresh:3;url=browse.php');
-        exit; // Added exit after header redirect to prevent further code execution
-    }
 
     $user_id = $_SESSION['id'] ?? null;
 

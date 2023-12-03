@@ -1,6 +1,7 @@
 <?php include_once("header.php") ?>
 <?php include_once('database.php') ?>
 <?php include_once("database_functions.php") ?>
+<?php include_once("session_check.php") ?>
 
 <div class="container">
   <div style="max-width: 800px; margin: 10px auto">
@@ -34,7 +35,9 @@
               <select class="form-control" id="auctionCategory" name="auctionCategory">
                 <option selected>Choose...</option>
                 <?php foreach ($categories as $category): ?>
-                  <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+                  <option value="<?php echo $category['id']; ?>">
+                    <?php echo $category['name']; ?>
+                  </option>
                 <?php endforeach; ?>
               </select>
               <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select

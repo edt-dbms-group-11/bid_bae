@@ -2,6 +2,7 @@
 include_once("header.php");
 include_once("utilities.php");
 include_once("database_functions.php");
+include_once("session_check.php");
 
 $auction_id = $_GET['auction_id'];
 
