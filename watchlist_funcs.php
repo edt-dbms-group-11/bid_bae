@@ -1,4 +1,4 @@
- <?php
+<?php
 include_once('database.php');
 session_start();
 if (!isset($_POST['functionname']) || !isset($_POST['arguments'])) {
@@ -12,16 +12,14 @@ $user_id = $_SESSION["id"];
 if ($_POST['functionname'] == "add_to_watchlist") {
   // TODO: Update database and return success/failure.
   $sql_add_to_watchlist = "INSERT INTO watchlist(auction_id, user_id) VALUES ($auction_id,$user_id)";
-  $result_add_to_watchlist = mysqli_query($connection,$sql_add_to_watchlist);
-  if(!$result_add_to_watchlist){
+  $result_add_to_watchlist = mysqli_query($connection, $sql_add_to_watchlist);
+  if (!$result_add_to_watchlist) {
     die('Error: ' . mysqli_error($connection));
-  }
-  else{
+  } else {
     $res = "success";
   }
 
-}
-else if ($_POST['functionname'] == "remove_from_watchlist") {
+} else if ($_POST['functionname'] == "remove_from_watchlist") {
   // TODO: Update database and return success/failure.
   $sql_remove_from_watchlist = "DELETE FROM watchlist WHERE auction_id = $auction_id AND user_id = $user_id";
   $result_remove_watchlist = mysqli_query($connection,$sql_remove_from_watchlist);

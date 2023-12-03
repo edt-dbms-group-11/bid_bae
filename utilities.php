@@ -79,14 +79,15 @@ function print_listing_li($auction_id, $title, $desc, $price, $num_bids, $end_ti
 
   // Print HTML
 
-      echo('<li class="list-group-item d-flex justify-content-between">
+  echo ('<li class="list-group-item d-flex justify-content-between">
         <div class="p-2 mr-5"><h5><a href="listing.php?auction_id=' . $auction_id . '">' . $title . '</a></h5>' . $desc_shortened . '</div>
         <div class="text-center text-nowrap"><span style="font-size: 1.5em">£' . number_format($price, 2) . '</span><br/>' . $num_bids . $bid . '<br/>' . $time_remaining . '</div>
       </li>'
   );
 }
 
-function getBadgeClass ($status) {
+function getBadgeClass($status)
+{
   $badgeClass = 'badge-success';
   if ($status == 'IN_PROGRESS') {
     $badgeClass = 'badge-info';
