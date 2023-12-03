@@ -156,22 +156,23 @@ function queryAuctionLogs($connection, $auction_id)
   return $auction_logs;
 }
 
-  function user_watch_status($user_id, $auction_id) {
-    global $connection;
-    $watching_query = "SELECT COUNT(id) AS watch_count FROM Watchlist WHERE auction_id = $auction_id AND user_id = $user_id";
-    $watching_status_result = mysqli_query($connection, $watching_query);
-    if (!$watching_status_result) {
-      die('Invalid query: ' . mysqli_error($connection));
-    }
-    $watch_count = mysqli_fetch_assoc($watching_status_result);
-    if ((int)$watch_count['watch_count'] > 0) {
-      return true;
-    }
-    return false;
+function user_watch_status($user_id, $auction_id)
+{
+  global $connection;
+  $watching_query = "SELECT COUNT(id) AS watch_count FROM Watchlist WHERE auction_id = $auction_id AND user_id = $user_id";
+  $watching_status_result = mysqli_query($connection, $watching_query);
+  if (!$watching_status_result) {
+    die('Invalid query: ' . mysqli_error($connection));
   }
+  $watch_count = mysqli_fetch_assoc($watching_status_result);
+  if ((int) $watch_count['watch_count'] > 0) {
+    return true;
+  }
+  return false;
+}
 
-  $watching = user_watch_status($user_id, $auction_id);
-  ?>  
+$watching = user_watch_status($user_id, $auction_id);
+?>
 
 
 <?php
@@ -452,7 +453,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
       let currBid = <?php echo isset($auction_current_price) ? $auction_current_price : ''; ?> || 0;
       let bidAlert = '<div class="badge badge-danger px-4 py-1 mb-1">Bid must be higher than current bid</div>';
 
-      if (parseInt(bidAmount) < currBid) {
+      if (parseInt(bidAmount) <= currBid) {
         bidBtn.classList.add('disabled');
         bidBtn.setAttribute('disabled', 'disabled')
         $('#bid-alert-container').html(bidAlert);
@@ -507,18 +508,18 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
       });
     }
 
-  // TODO(paul): Remove this dummy trigger
-  // document.getElementById('endAuctionButton').addEventListener('click', function() {
-  //   fetch('bid_winner_cron.php')
-  //     .then(response => response.text())
-  //     .then(data => {
-  //       // You can handle the response here if needed
-  //       console.log(data);
-  //     })
-  //     .catch(error => {
-  //       console.error('Error:', error);
-  //   });
-  // });
+    // TODO(paul): Remove this dummy trigger
+    // document.getElementById('endAuctionButton').addEventListener('click', function() {
+    //   fetch('bid_winner_cron.php')
+    //     .then(response => response.text())
+    //     .then(data => {
+    //       // You can handle the response here if needed
+    //       console.log(data);
+    //     })
+    //     .catch(error => {
+    //       console.error('Error:', error);
+    //   });
+    // });
   </script>
 
   <style>
