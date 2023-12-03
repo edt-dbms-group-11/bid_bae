@@ -1,5 +1,6 @@
 <?php
 include_once("header.php");
+include_once("utilities.php");
 include_once("database_functions.php");
 
 $user_id = $_SESSION['id']; // Assuming user is logged in
@@ -89,27 +90,27 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
     </div>
   </form>
   <?php
-  if (($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
-    echo '<div class="container mt-5">';
-    echo '<div class="alert alert-danger" role="alert">';
+    if( isset($_GET['filter_by']) && ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
+      echo '<div class="container mt-5">';
+      echo '<div class="alert alert-danger" role="alert">';
 
-    switch ($_GET['filter_by']) {
-      case 'ended':
-        echo "Ended auctions can't be modified or deleted.";
-        break;
-
-      case 'live':
-        echo "Live auctions can't be modified or deleted.";
-        break;
-
-      case 'all':
-        echo "Live and Ended auctions can't be modified or deleted.";
-        break;
-
-      default:
-        echo "Live and Ended auctions can't be modified or deleted.";
-        break;
-    }
+      switch ($_GET['filter_by']) {
+          case 'ended':
+              echo "Ended auctions can't be modified or deleted.";
+              break;
+  
+          case 'live':
+              echo "Live auctions can't be modified or deleted.";
+              break;
+  
+          case 'all':
+              echo "Live and Ended auctions can't be modified or deleted.";
+              break;
+  
+          default:
+              echo "Live and Ended auctions can't be modified or deleted.";
+              break;
+      }
 
     echo '</div>';
     echo '</div>';
@@ -117,6 +118,7 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
   ?>
   <div class="container mt-5">
     <ul class="list-group" id="auctions_container">
+
       <!-- Loop through user auctions and print a list item for each auction -->
       <?php
 
@@ -144,6 +146,7 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
 
           // Using the function defined in utilities.php
           modifyDeleteAuctions($auction_id, $title, $description, $current_price, $num_bids, $end_date, $status);
+
         }
         echo '</ul>';
         echo '</div>';

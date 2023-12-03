@@ -4,10 +4,11 @@
   }
 </style>
 
+
 <?php
 include_once("header.php");
 include_once("database.php");
-// include_once("bid_winner_cron.php");
+
 ?>
 
 <?php include_once("utilities.php") ?>
@@ -151,11 +152,28 @@ function queryAuctionLogs($connection, $auction_id)
     $auction_logs[] = $row;
   }
 
+
   // var_dump($auction_logs);
   return $auction_logs;
 }
 
-?>
+  function user_watch_status($user_id, $auction_id) {
+    global $connection;
+    $watching_query = "SELECT COUNT(id) AS watch_count FROM Watchlist WHERE auction_id = $auction_id AND user_id = $user_id";
+    $watching_status_result = mysqli_query($connection, $watching_query);
+    if (!$watching_status_result) {
+      die('Invalid query: ' . mysqli_error($connection));
+    }
+    $watch_count = mysqli_fetch_assoc($watching_status_result);
+    if ((int)$watch_count['watch_count'] > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  $watching = user_watch_status($user_id, $auction_id);
+  ?>  
+
 
 <?php
 
