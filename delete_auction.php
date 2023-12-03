@@ -2,6 +2,7 @@
 include_once("header.php");
 include_once("utilities.php");
 include_once("database_functions.php");
+include_once("session_check.php");
 
 $auction_id = $_GET['auction_id'];
 
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
     // Get the item IDs associated with the auction
     $get_items_query = "SELECT item_id FROM Auction_Product WHERE auction_id = $auction_id";
     $get_items_result = mysqli_query($connection, $get_items_query);
-    
+
     // Execute the delete query directly
     $delete_query = "DELETE FROM Auction WHERE id = $auction_id";
     $delete_result = mysqli_query($connection, $delete_query);
@@ -49,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
             }
 
             // Redirect to mylistings.php after deletion and item availability update
-            echo('<div class="text-center">Auction successfully deleted!</div>'); 
+            echo ('<div class="text-center">Auction successfully deleted!</div>');
             header("refresh:2;url=mylistings.php");
             exit();
         } else {
