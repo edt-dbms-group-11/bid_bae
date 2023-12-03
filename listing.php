@@ -21,6 +21,7 @@ if ($_SESSION['username'] != null) {
 
 $auction_id;
 $user_id;
+$watching;
 
 if (isset($_GET['auction_id'])) {
   $auction_id = $_GET['auction_id'];
@@ -53,7 +54,6 @@ $auction_user_display_name = $auctionData['user_display_name'];
 
 
 
-// TODO(paul): move query to database fn file
 function queryAuctionDetail($connection, $auction_id)
 {
   $auction_detail_query = "SELECT Auction.id as auction_id, Auction.title as title, Auction.description as auction_description, reserved_price, start_price, end_price, current_price, end_time, start_time, seller_id, Auction.status as auction_status, Item.image_url, item_id, Item.name as item_name, Item.description as item_description, User.display_name FROM Auction_Product
@@ -171,17 +171,13 @@ function user_watch_status($user_id, $auction_id)
   return false;
 }
 
-$watching = user_watch_status($user_id, $auction_id);
+if ($_SESSION['username'] != null) {
+  $watching = user_watch_status($user_id, $auction_id);
+}
 ?>
 
 
 <?php
-
-// TODO: Note: Auctions that have ended may pull a different set of data,
-//       like whether the auction ended in a sale or was cancelled due
-//       to lack of high-enough bids. Or maybe not.
-
-// Calculate time to auction end:
 $now = new DateTime('now', new DateTimeZone('UTC'));
 $auction_end_time_converted = new DateTime($auction_end_time, new DateTimeZone('UTC'));
 
@@ -217,7 +213,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
       <div class="auction-right align-content-around my-1 row">
         <div class="py-3 justify-content-between align-content-between ">
           <div class="auction-detail">
-            <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
+            <?php if ($auction_status !== 'DONE' && $now <= $auction_end_time_converted): ?>
               <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
                 Current bid: £
                 <?php echo (number_format($auction_current_price, 2)) ?>
@@ -230,33 +226,37 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
             </div>
           <?php } else { ?>
             <div class="auction-buttons">
-              <?php if ($auction_status !== 'ended' && $now <= $auction_end_time_converted): ?>
-                <p class="h4">Make this yours</p>
-                <div class="auction-butons-top row">
-                  <div class="pl-3 form-group">
-                    <div class="input-group">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">£</span>
-                      </div>
-                      <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid"
-                        id="user-bid-input" aria-describedby="basic-addon2">
-                      <div class="input-group-append">
-                        <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled
-                          type="button">Place</button>
+              <?php if ($is_logged_in): ?>
+                <?php if ($auction_status !== 'DONE' && $now <= $auction_end_time_converted): ?>
+                  <p class="h4">Make this yours</p>
+                  <div class="auction-butons-top row">
+                    <div class="pl-3 form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="basic-addon1">£</span>
+                        </div>
+                        <input oninput="onBidInput()" type="text" class="form-control" placeholder="Your bid"
+                          id="user-bid-input" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                          <button onclick="submitBid()" id="btn-place-bid" class="btn btn-outline-secondary disabled" disabled
+                            type="button">Place</button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              <?php else: ?>
-                <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
-                  <p class="h5 py-3">You've missed the it!</p>
-                  <p>This auction ended due to lack of high-valued bids</p>
                 <?php else: ?>
-                  <p class="h5 py-3">Someone's bought it!</p>
-                  <p>This auction has ended. It was sold for £
-                    <?php echo number_format($auction_end_price, 2); ?>
-                  </p>
+                  <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
+                    <p class="h5 py-3">You've missed the it!</p>
+                    <p>This auction ended due to lack of high-valued bids</p>
+                  <?php else: ?>
+                    <p class="h5 py-3">Someone's bought it!</p>
+                    <p>This auction has ended. It was sold for £
+                      <?php echo number_format($auction_end_price, 2); ?>
+                    </p>
+                  <?php endif; ?>
                 <?php endif; ?>
+              <?php else: ?>
+                <p class="mt-3 alert alert-info">Please log in to place a bid</p>
               <?php endif; ?>
               <div class="pb-2" id="bid-alert-container"></div>
             </div>
@@ -264,7 +264,6 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
           <div class="bottom-content">
             <div class="">
               <?php if (($now < $auction_end_time_converted) && !($is_auction_self_owned)): ?>
-                <!-- [WIP] TODO: continue watchlist fn -->
                 <div id="watch_nowatch" <?php if ($is_logged_in && $watching)
                   echo ('style="display: none"'); ?>>
                   <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to

@@ -10,7 +10,6 @@ function getSellerItems($seller_id)
     $result = mysqli_query($connection, $sql);
 
     if ($result->num_rows > 0) {
-        // Fetch items and store them in an array
         $items = array();
         while ($row = $result->fetch_assoc()) {
             $items[] = $row;
