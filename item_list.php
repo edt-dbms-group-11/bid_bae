@@ -41,13 +41,15 @@ $result_item = mysqli_query($connection, $items_query);
     echo '<div class="card-body d-flex flex-column">';
     echo '<h5 class="card-title">' . $item[1] . '</h5>';
     echo '<p class="card-text text-truncate">' . $item[2] . '</p>';
-    echo '<span class="card-text badge badge-light w-50 py-2">' . $item[5] . '</span>';
+    echo '<span class="card-text badge badge-light w-50 py-2 mb-2">' . $item[5] . '</span>';
     echo '<hr class="w-100 mt-auto "></hr`>';
 
     if ($item[4] == true) { // item.is_available
         echo '<button class="w-50 ml-auto btn btn-warning" onclick="removeItem(' . $item[0] . ')">Remove Item</button>';
     } else {
-        echo '<button class="w-50 ml-auto btn btn-danger" disabled>In Auction / Sold</button>';
+        echo '<button class="w-50 ml-auto btn btn-danger" disabled>Unavailable</button>';
+        echo '<small class="form-text text-muted" style="text-align: right;"> *This item is either in an auction, already sold, or has been removed.</small>';
+
     }
 
     echo '</div>';
