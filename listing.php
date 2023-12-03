@@ -485,7 +485,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
             text: "You will be redirected soon",
             icon: "success"
           }).then((result) => {
-            if (result.isConfirmed) {
+            if (result.isConfirmed || result.isDismissed) {
               setTimeout(() => {
                 window.location.reload()
               }, 600);
