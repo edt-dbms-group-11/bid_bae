@@ -37,16 +37,15 @@
         // If reserve price is blank, assign the start price to it
         $reservePrice = $startPrice;
       }
-      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $description);
-      $success = [];
+      $errors = validateAuctionData($title, $selectedItems, $startPrice, $reservePrice, $startDate, $endDate, $details);
 
     if (!empty($errors)) {
       $_SESSION['errors'] = $errors;
       echo '<script>window.location.href = "create_auction.php";</script>';
       exit();
     } else {
-      $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, end_time) 
-      VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$formattedEndDate')";
+      $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, start_time, end_time) 
+                VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$startDate', '$endDate')";
 
       // Execute the query
       $result = mysqli_query($connection, $query);
@@ -84,9 +83,11 @@
 
               // All series success
               $_SESSION['success'] = 'auction_create_success';
-              echo '<script>window.location.href = "create_auction.php";</script>';
-              exit();
-
+              // echo '<script>window.location.href = "create_auction.php";</script>';
+              // exit();
+              if (isset($_SESSION['success'])){
+                var_dump($_SESSION);
+              }
             }
           } else {
             handleGeneralError('');
