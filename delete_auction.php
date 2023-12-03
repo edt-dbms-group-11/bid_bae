@@ -24,22 +24,38 @@ if ($_SESSION['id'] !== $auction_details['seller_id']) {
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmDelete'])) {
+
+    // Get the item IDs associated with the auction
+    $get_items_query = "SELECT item_id FROM Auction_Product WHERE auction_id = $auction_id";
+    $get_items_result = mysqli_query($connection, $get_items_query);
+    
     // Execute the delete query directly
     $delete_query = "DELETE FROM Auction WHERE id = $auction_id";
     $delete_result = mysqli_query($connection, $delete_query);
 
     if ($delete_result) {
-        // Redirect to mylistings.php after deletion
-        echo (
-            '<div class="text-center">Auction successfully deleted!</div>'
-        );
-        header("refresh:2;url=mylistings.php");
-        //header("Location: mylistings.php");
-        exit();
-    } else {
-        // Handle delete failure
-        echo "Failed to delete the auction. Please try again.";
-    }
+        if ($get_items_result) {
+            // Update the is_available field in the Item table for each item
+            foreach ($get_items_result as $row) {
+                $item_id = $row['item_id'];
+                $update_item_query = "UPDATE Item SET is_available = 1 WHERE id = $item_id";
+                $update_item_result = mysqli_query($connection, $update_item_query);
+
+                if (!$update_item_result) {
+                    // Handle update failure for item availability
+                    echo "Failed to update item availability. Please try again.";
+                    exit();
+                }
+            }
+
+            // Redirect to mylistings.php after deletion and item availability update
+            echo('<div class="text-center">Auction successfully deleted!</div>'); 
+            header("refresh:2;url=mylistings.php");
+            exit();
+        } else {
+            // Handle query failure to get item IDs
+            echo "Failed to retrieve item IDs. Please try again.";
+        }
 }
 ?>
 
