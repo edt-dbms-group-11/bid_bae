@@ -121,6 +121,9 @@ if (!isset($_SESSION) || $_SESSION == null) {
 					</li>
 					<li class='nav-item mx-1'>
 						<a class='nav-link' href='recommendations.php'>Recommendation</a>
+					</li>
+					<li class='nav-item mx-1'>
+						<a class='nav-link' href='watchlist.php'>My Watchlist</a>
 					</li>";
 					} 
 			  ?>
