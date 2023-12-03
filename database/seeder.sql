@@ -1,10 +1,10 @@
 -- Insert into User table with hashed passwords using SHA2 fn 
-INSERT INTO User (username, password, email, display_name, opt_in_email, balance) VALUES
-    ('user1', SHA2('password1', 256), 'user1@example.com', 'User One', TRUE, 2560.00),
-    ('user2', SHA2('password2', 256), 'user2@example.com', 'User Two', FALSE, 50.00),
-    ('user3', SHA2('password3', 256), 'user3@example.com', 'User Three', TRUE, 75.00),
-    ('user4', SHA2('password4', 256), 'user4@example.com', 'User Four', FALSE, 200.00),
-    ('user5', SHA2('password5', 256), 'user5@example.com', 'User Five', TRUE, 150.00);
+INSERT INTO User (username, password, email, display_name, opt_in_email, balance, locked_balance) VALUES
+    ('user1', SHA('password1'), 'user1@example.com', 'User One', TRUE, 2560.00, 0.00),
+    ('user2', SHA('password2'), 'user2@example.com', 'User Two', FALSE, 50.00, 0.00),
+    ('user3', SHA('password3'), 'user3@example.com', 'User Three', TRUE, 75.00, 0.00),
+    ('user4', SHA('password4'), 'user4@example.com', 'User Four', FALSE, 200.00, 0.00),
+    ('user5', SHA('password5'), 'user5@example.com', 'User Five', TRUE, 150.00, 0.00);
 
 -- Insert into Auction table
 INSERT INTO Auction (reserved_price, start_price, end_price, current_price, start_time, end_time, status, seller_id, description, title) VALUES

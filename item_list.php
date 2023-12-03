@@ -1,32 +1,32 @@
 <!-- Fn -->
 <?php
 
-  include_once('header.php');
-  include_once('database.php');
+include_once('header.php');
+include_once('database.php');
 
-  $user_id = $_SESSION['id'];
-  $items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name 
+$user_id = $_SESSION['id'];
+$items_query = "SELECT Item.id, Item.name, Item.description, Item.image_url, Item.is_available, Category.name as category_name 
                   FROM Item 
                   JOIN Category ON Item.category_id = Category.id 
                   WHERE user_id = $user_id
                   ORDER BY Item.id DESC";
 $result_item = mysqli_query($connection, $items_query);
-  if (!$result_item) {
-    die('Invalid query: ' . mysqli_error($connection));
-  }
-  $items = mysqli_fetch_all($result_item);
+if (!$result_item) {
+  die('Invalid query: ' . mysqli_error($connection));
+}
+$items = mysqli_fetch_all($result_item);
 
-  // var_dump($items);
+// var_dump($items);
 ?>
 
 
 <!-- UI -->
-<?php 
-  $items_per_page = 6;
-  $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
-  $offset = ($current_page - 1) * $items_per_page;
-  $items_for_current_page = array_slice($items, $offset, $items_per_page);
-  $total_pages = ceil(count($items) / $items_per_page);
+<?php
+$items_per_page = 6;
+$current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+$offset = ($current_page - 1) * $items_per_page;
+$items_for_current_page = array_slice($items, $offset, $items_per_page);
+$total_pages = ceil(count($items) / $items_per_page);
 
   // items list
   echo '<div class="container py-4">';
@@ -55,44 +55,45 @@ $result_item = mysqli_query($connection, $items_query);
     echo '</div>';
     echo '</div>';
     echo '</div>';
-  }
-  echo '</div>';
 
-    echo '<ul class="pagination py-4">';
-    for ($i = 1; $i <= $total_pages; $i++) {
-        echo '<li class="page-item' . ($i == $current_page ? ' active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
-    }
-    echo '</ul>';
-    echo '</nav>';
-    echo '</div>';
+}
+echo '</div>';
+
+echo '<ul class="pagination py-4">';
+for ($i = 1; $i <= $total_pages; $i++) {
+  echo '<li class="page-item' . ($i == $current_page ? ' active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+}
+echo '</ul>';
+echo '</nav>';
+echo '</div>';
 ?>
 
 <!-- JS -->
 <script>
-    function removeItem(itemId) {
-      if (confirm("Are you sure you want to remove this item?")) {
-        $.ajax({
-          type: "POST",
-          url: "remove_item.php",
-          data: { item_id: itemId, type: 'remove' },
-          dataType: "json",
-          success: function(response) {
-            console.log('Server Response:', response);
+  function removeItem(itemId) {
+    if (confirm("Are you sure you want to remove this item?")) {
+      $.ajax({
+        type: "POST",
+        url: "remove_item.php",
+        data: { item_id: itemId, type: 'remove' },
+        dataType: "json",
+        success: function (response) {
+          console.log('Server Response:', response);
 
-            if (response.status === 'success') {
-              alert('Item removed successfully.');
-              location.reload();
-            } else {
-              alert('Error: ' + response.message);
-            }
-          },
-          error: function(xhr, status, error) {
-            console.log('AJAX Error:', status, error);
-            alert('Error: Unable to process the request.');
+          if (response.status === 'success') {
+            alert('Item removed successfully.');
+            location.reload();
+          } else {
+            alert('Error: ' + response.message);
           }
-        });
-      }
-    };
+        },
+        error: function (xhr, status, error) {
+          console.log('AJAX Error:', status, error);
+          alert('Error: Unable to process the request.');
+        }
+      });
+    }
+  };
 </script>
 
 <script>
