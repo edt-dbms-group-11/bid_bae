@@ -127,7 +127,7 @@ if ($user_id) {
 						<a class='nav-link' href='mylistings.php'>My Listings</a>
 					</li>
 					<li class='nav-item mx-1'>
-						<a class='nav-link' href='recommendations.php'>Recommendation</a>
+						<a class='nav-link' href='recommendations.php'>Recommendations</a>
 					</li>
 					<li class='nav-item mx-1'>
 						<a class='nav-link' href='watchlist.php'>My Watchlist</a>
