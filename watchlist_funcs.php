@@ -23,8 +23,14 @@ if ($_POST['functionname'] == "add_to_watchlist") {
 }
 else if ($_POST['functionname'] == "remove_from_watchlist") {
   // TODO: Update database and return success/failure.
-
-  $res = "success";
+  $sql_remove_from_watchlist = "DELETE FROM watchlist WHERE auction_id = $auction_id AND user_id = $user_id";
+  $result_remove_watchlist = mysqli_query($connection,$sql_remove_from_watchlist);
+  if(!$result_remove_watchlist){
+    die('Error: ' . mysqli_error($connection));
+  }
+  else{
+    $res = "success";
+  }
 }
 
 // Note: Echoing from this PHP function will return the value as a string.
