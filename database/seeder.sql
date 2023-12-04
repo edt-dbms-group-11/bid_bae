@@ -1,6 +1,6 @@
 -- Insert into User table with hashed passwords using SHA fn 
 INSERT INTO User (username, password, email, display_name, opt_in_email, balance, locked_balance) VALUES
-    ('student_1', SHA('123'), 'ucaba75@ucl.ac.uk', 'Student 1', TRUE, 2560.00, 0.00),
+    ('student_1', SHA('123'), 'ucaba75@ucl.ac.uk', 'Student 1', TRUE, 2560.00, 0.00);
 
 -- Insert into Category table
 INSERT INTO Category (name, description) VALUES
