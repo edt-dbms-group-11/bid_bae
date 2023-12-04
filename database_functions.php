@@ -483,7 +483,7 @@ function getRecommedationsForUser($user_id, $mode, $page_num, $page_size)
 function getAuctionSellerData($auction_id) {
     global $connection;
 
-    $seller_query = "SELECT user.display_name, user.email, user.opt_in_email,
+    $seller_query = "SELECT user.display_name, user.email, user.opt_in_email
                      FROM user
                      JOIN auction ON auction.seller_id = user.id
                      WHERE auction.id = $auction_id";

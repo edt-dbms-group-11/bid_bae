@@ -1,69 +1,53 @@
 <?php
 include_once("database.php");
-// include_once("bid_winner_cron.php");
 include_once("utilities.php");
 include_once("database_functions.php");
 
-// function sendmailbidnotplaced($auction_id)
-// {
-//     global $connection;
-//     $time_check_query = "SELECT count(bid.id) as bid_count
-//                     FROM Auction auc
-//                     LEFT JOIN Bid bid ON auc.id = bid.auction_id
-//                     WHERE auc.id = $auction_id
-//                     GROUP BY auc.id;";
-//     $time_check_result = mysqli_query($connection, $time_check_query);
-//     if ($time_check_result) {
-//         while ($time_check_row = mysqli_fetch_assoc($time_check_result)) {
-//             if ($time_check_row['bid_count'] == 0) {
-//                 email_to_seller($auction_id);
-//                 return true;
-//             }
-//         }
-//     } else {
-//         // Display error message if query fails
-//         die('Error: ' . mysqli_error($connection));
-//     }
+function sendMailAfterAuctionCreation($auction_id, $auction_title, $start_date)
+{
+    $seller_data = getAuctionSellerData($auction_id);
+    $seller_email = $seller_data[1];
+    $seller_name = $seller_data[0];
+    if ($seller_data[2]) { // Only if the Seller has opted in for emails, do we proceed.
+        $subject = "Your Auction has been created";
+        $content = "$seller_name!<br>Your Auction: \"$auction_title\" has been created, and is set to go live at $start_date";
+        sendmail($seller_email, $subject, $content);
+    } else {
+        error_log("Email to seller $seller_name skipped because they opted out");
+    }
+}
 
-// }
-
-function email_to_seller_bid_not_placed($auction_id)
+function EmailSellerBidNotPlaced($auction_id)
 {
     global $connection;
     $seller_data = getAuctionSellerData($auction_id);
-    if($seller_data[2]) {  // Only if the Seller has opted in for emails, do we proceed.
+    $seller_email = $seller_data[1];
+    $seller_name = $seller_data[0];
+    if ($seller_data[2]) { // Only if the Seller has opted in for emails, do we proceed.
         $auction_data = getAuctionDetailsById($auction_id);
-    }
-    
-
-
-    $seller_query = "SELECT seller_id FROM auction WHERE auction.id = $auction_id";
-    $seller_result = mysqli_query($connection, $seller_query);
-    if ($seller_result) {
-
-        while ($check_all = mysqli_fetch_row($seller_result)) {
-
-            foreach ($check_all as $index => $content) {
-                $auction_id = $content[0];
-                $title = $content[10];
-                $price = $content[4];
-                $seller = $content[8];
-                $sql = "SELECT email, opt_in_email
-                        FROM user
-                        WHERE user.id = $seller";
-                $user_data = mysqli_fetch_all(mysqli_query($connection, $sql));
-                $seller_email = $user_data[0][0];
-                $if_opted = $user_data[0][1];
-                if ($if_opted) {
-                    $content56 = "<h5>OH NO! You have not sold the item " . $title . " because no one have even placed a bid! </h5><br>
-                        <p>Highest offered price: ￡" . $price . "</p>";
-                    sendmail($seller_email, "OH NO!", $content56);
-                }
-            }
-        }
+        $auction_title = $auction_data['title'];
+        $subject = "No bids placed on your auction";
+        $content = "$seller_name,<br>Oh No! Unfortunately, you have not sold the items in your auction \"$auction_title\", since no one placed a bid!";
+        sendmail($seller_email, $subject, $content);
     } else {
-        // Display error message if query fails
-        die('Seller Query Failed. Error: ' . mysqli_error($connection));
+        error_log("Email to seller $seller_name skipped because they opted out");
+    }
+}
+
+function EmailSellerReservePriceNotMet($auction_id)
+{
+    global $connection;
+    $seller_data = getAuctionSellerData($auction_id);
+    $seller_email = $seller_data[1];
+    $seller_name = $seller_data[0];
+    if ($seller_data[2]) { // Only if the Seller has opted in for emails, do we proceed.
+        $auction_data = getAuctionDetailsById($auction_id);
+        $auction_title = $auction_data['title'];
+        $subject = "Your auction was not sold";
+        $content = "$seller_name,<br>Oh No! Unfortunately, you have not sold the items in your auction \"$auction_title\", since no bids met the reserve price!";
+        sendmail($seller_email, $subject, $content);
+    } else {
+        error_log("Email to seller $seller_name skipped because they opted out");
     }
 }
 

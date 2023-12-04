@@ -1,21 +1,23 @@
 <?php
 require 'vendor/autoload.php';
 include_once("database.php");
+include_once("database_functions.php");
+
 use \SendGrid\Mail\Mail;
 
 function sendmail($recipient, $subject, $content)
 {
   $email = new Mail();
   $email->setFrom(
-    'bidbae.auction@gmail.com',
-    'Bid Bae'
+    'no-reply@bidbae.tech',
+    'BidBae Auctions'
   );
   $email->setSubject($subject);
   // Replace the email address and name with your recipient
   $email->addTo($recipient);
 
   $email->addContent('text/html', $content);
-  $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+  $sendgrid = new \SendGrid('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'); //getenv('SENDGRID_API_KEY'));
   try {
     $response = $sendgrid->send($email);
     printf("Response status: %d\n\n", $response->statusCode());
