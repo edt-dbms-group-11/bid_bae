@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Auction (
     current_price FLOAT(2) NOT NULL,
     start_time DATETIME,
     end_time DATETIME,
-    status ENUM('INIT', 'IN_PROGRESS', 'DONE', 'DISCARDED') NOT NULL,
+    status ENUM('INIT', 'IN_PROGRESS', 'DONE') NOT NULL,
     seller_id INT NOT NULL,
     description VARCHAR(255) NOT NULL,
     title VARCHAR(40) NOT NULL,

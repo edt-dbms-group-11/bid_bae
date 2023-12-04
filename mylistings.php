@@ -2,6 +2,7 @@
 include_once("header.php");
 include_once("utilities.php");
 include_once("database_functions.php");
+include_once("session_check.php");
 
 $user_id = $_SESSION['id']; // Assuming user is logged in
 ?>
@@ -90,27 +91,27 @@ function modifyDeleteAuctions($auction_id, $title, $desc, $price, $num_bids, $en
     </div>
   </form>
   <?php
-    if( isset($_GET['filter_by']) && ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
-      echo '<div class="container mt-5">';
-      echo '<div class="alert alert-danger" role="alert">';
+  if (isset($_GET['filter_by']) && ($_GET['filter_by'] !== 'not_started') && getUserAuctionsByFilter($user_id, $_GET['filter_by'])) {
+    echo '<div class="container mt-5">';
+    echo '<div class="alert alert-danger" role="alert">';
 
-      switch ($_GET['filter_by']) {
-          case 'ended':
-              echo "Ended auctions can't be modified or deleted.";
-              break;
-  
-          case 'live':
-              echo "Live auctions can't be modified or deleted.";
-              break;
-  
-          case 'all':
-              echo "Live and Ended auctions can't be modified or deleted.";
-              break;
-  
-          default:
-              echo "Live and Ended auctions can't be modified or deleted.";
-              break;
-      }
+    switch ($_GET['filter_by']) {
+      case 'ended':
+        echo "Ended auctions can't be modified or deleted.";
+        break;
+
+      case 'live':
+        echo "Live auctions can't be modified or deleted.";
+        break;
+
+      case 'all':
+        echo "Live and Ended auctions can't be modified or deleted.";
+        break;
+
+      default:
+        echo "Live and Ended auctions can't be modified or deleted.";
+        break;
+    }
 
     echo '</div>';
     echo '</div>';
