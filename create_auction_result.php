@@ -49,13 +49,10 @@
       $query = "INSERT INTO Auction (title, description, seller_id, start_price, reserved_price, current_price, start_time, end_time) 
                 VALUES ('$title', '$details', $seller_id,  $startPrice, $reservePrice, $startPrice, '$startDate', '$endDate')";
 
-      // Execute the query
       $result = mysqli_query($connection, $query);
 
       if ($result) {
         $auction_id = mysqli_insert_id($connection);
-
-        $selectedItems = explode(',', $_POST['selectedItems']);
         // Now, add rows to the Auction_Product table
         foreach ($selectedItems as $item_id) {
           $insertProductQuery = "INSERT INTO Auction_Product (item_id, auction_id) VALUES ('$item_id', '$auction_id')";
@@ -88,7 +85,6 @@
               // All series success
               $_SESSION['success'] = 'auction_create_success';
               echo '<script>window.location.href = "create_auction.php";</script>';
-              exit();
             }
           } else {
             handleGeneralError('');
