@@ -151,8 +151,6 @@ function queryAuctionLogs($connection, $auction_id)
     $auction_logs[] = $row;
   }
 
-
-  // var_dump($auction_logs);
   return $auction_logs;
 }
 
@@ -171,7 +169,7 @@ function user_watch_status($user_id, $auction_id)
   return false;
 }
 
-if ($_SESSION['username'] != null) {
+if ($_SESSION['id'] != null) {
   $watching = user_watch_status($user_id, $auction_id);
 }
 ?>
@@ -213,6 +211,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
       <div class="auction-right align-content-around my-1 row">
         <div class="py-3 justify-content-between align-content-between ">
           <div class="auction-detail">
+            <!-- Auction not done, user can bid -->
             <?php if ($auction_status !== 'DONE' && $now <= $auction_end_time_converted): ?>
               <div class="badge badge-pill badge-info py-2 px-4 mb-2" role="alert">
                 Current bid: £
@@ -227,6 +226,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
           <?php } else { ?>
             <div class="auction-buttons">
               <?php if ($is_logged_in): ?>
+                <!-- Logged in, auction not done -->
                 <?php if ($auction_status !== 'DONE' && $now <= $auction_end_time_converted): ?>
                   <p class="h4">Make this yours</p>
                   <div class="auction-butons-top row">
@@ -244,6 +244,12 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
                       </div>
                     </div>
                   </div>
+                  <!-- Logged in, auction not star -->
+                <?php elseif ($auction_status == 'INIT'): ?>
+                  <div class="alert alert-purple mt-3">
+                    This auction has not started yet
+                  </div>
+                  <!-- Logged in, auction running -->
                 <?php else: ?>
                   <?php if (intval($auction_current_price) < intval($auction_reserved_price)): ?>
                     <p class="h5 py-3">You've missed the it!</p>
@@ -256,39 +262,45 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
                   <?php endif; ?>
                 <?php endif; ?>
               <?php else: ?>
-                <p class="mt-3 alert alert-info">Please log in to place a bid</p>
+                <p class="mt-3 alert alert-purple">Please log in to place a bid</p>
+                <div class="pb-2" id="bid-alert-container"></div>
               <?php endif; ?>
-              <div class="pb-2" id="bid-alert-container"></div>
             </div>
           <?php } ?>
           <div class="bottom-content">
             <div class="">
-              <?php if (($now < $auction_end_time_converted) && !($is_auction_self_owned)): ?>
-                <div id="watch_nowatch" <?php if ($is_logged_in && $watching)
-                  echo ('style="display: none"'); ?>>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to
-                    watchlist</button>
-                </div>
-                <div id="watch_watching" <?php if (!$is_logged_in || !$watching)
-                  echo ('style="display: none"'); ?>>
-                  <button type="button" class="btn btn-success btn-sm" disabled>Watching</button>
-                  <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist()">Remove
-                    watch</button>
-                </div>
-              <?php endif ?>
+              <?php if (($now < $auction_end_time_converted) && !$is_auction_self_owned): ?>
+                <?php if ($is_logged_in): ?>
+                  <div class="watchlist">
+                    <div id="watch_nowatch" <?php if ($watching)
+                      echo 'style="display: none"'; ?>>
+                      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist()">+ Add to
+                        watchlist</button>
+                    </div>
+                    <div id="watch_watching" <?php if (!$watching)
+                      echo 'style="display: none"'; ?>>
+                      <button type="button" class="btn btn-success btn-sm" disabled>Watching</button>
+                      <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist()">Remove
+                        watch</button>
+                    </div>
+                  </div>
+                <?php endif; ?>
+              <?php endif; ?>
             </div>
             <div class="bottom-time mt-3">
-              <?php if ($now > $auction_end_time_converted): ?>
-                <div class="alert alert-warning" role="alert">
-                  This auction ended at
-                  <?php echo (date_format($auction_end_time_converted, 'j M H:i')) ?>
-                </div>
-              <?php else: ?>
-                <div class="alert alert-warning" role="alert">
-                  This auction will end in
-                  <?php echo (date_format($auction_end_time_converted, 'j M \a\t H:i')); ?> (
-                  <?php echo $time_remaining; ?> remaining)
-                </div>
+              <?php if ($auction_status !== 'INIT'): ?>
+                <?php if (($now > $auction_end_time_converted)): ?>
+                  <div class="alert alert-warning" role="alert">
+                    This auction ended at
+                    <?php echo (date_format($auction_end_time_converted, 'j M H:i')) ?>
+                  </div>
+                <?php else: ?>
+                  <div class="alert alert-warning" role="alert">
+                    This auction will end in
+                    <?php echo (date_format($auction_end_time_converted, 'j M \a\t H:i')); ?> (
+                    <?php echo $time_remaining; ?> remaining)
+                  </div>
+                <?php endif ?>
               <?php endif ?>
             </div>
 
@@ -366,7 +378,7 @@ $is_auction_self_owned = $auction_seller_id == $user_id;
       </div>
     </div>
   </div>
-  <?php include_once("footer.php") ?>
+  <!-- Item list, bid history list -->
 
   <script>
     let bidInput = document.getElementById('user-bid-input');
