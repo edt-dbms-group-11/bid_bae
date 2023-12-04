@@ -363,31 +363,6 @@ function addBalance($user_id, $amt)
     mysqli_stmt_close($stmt);
 }
 
-
-function findInitStateAuction()
-{
-    global $connection;
-
-    error_log('findInitAuction');
-    $find_init_query = "SELECT * FROM Auction WHERE status = 'INIT' AND start_time >= NOW();";
-    $result = mysqli_query($connection, $find_init_query);
-
-    if (!$result) {
-        die('Error querying init auctions: ' . mysqli_error($connection));
-    }
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $auction_id = $row['id'];
-
-        $updateInitAuction = "UPDATE Auction SET status = 'IN_PROGRESS' WHERE id = $auction_id";
-        $updateAuctionResult = mysqli_query($connection, $updateInitAuction);
-
-        if (!$updateAuctionResult) {
-            die('Error updating auction to start: ' . mysqli_error($connection));
-        }
-    }
-}
-
 //used in mylistings.php to retrieve auctions as per user's desired filter
 function getUserAuctionsByFilter($user_id, $filter)
 {
@@ -503,6 +478,22 @@ function getRecommedationsForUser($user_id, $mode, $page_num, $page_size)
         }
     }
     return $auctions;
+}
+
+function getAuctionSellerData($auction_id) {
+    global $connection;
+
+    $seller_query = "SELECT user.display_name, user.email, user.opt_in_email,
+                     FROM user
+                     JOIN auction ON auction.seller_id = user.id
+                     WHERE auction.id = $auction_id";
+    $seller_result = mysqli_query($connection, $seller_query);
+    if ($seller_result) {
+        $seller_data = mysqli_fetch_row($seller_result);
+        return $seller_data;
+    } else {
+        die('Seller Query Failed. Error: ' . mysqli_error($connection));
+    }
 }
 
 ?>

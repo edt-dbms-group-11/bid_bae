@@ -1,38 +1,47 @@
 <?php
 include_once("database.php");
-include_once("bid_winner_cron.php");
+// include_once("bid_winner_cron.php");
 include_once("utilities.php");
+include_once("database_functions.php");
 
-function sendmailbidnotplaced($auction_id)
+// function sendmailbidnotplaced($auction_id)
+// {
+//     global $connection;
+//     $time_check_query = "SELECT count(bid.id) as bid_count
+//                     FROM Auction auc
+//                     LEFT JOIN Bid bid ON auc.id = bid.auction_id
+//                     WHERE auc.id = $auction_id
+//                     GROUP BY auc.id;";
+//     $time_check_result = mysqli_query($connection, $time_check_query);
+//     if ($time_check_result) {
+//         while ($time_check_row = mysqli_fetch_assoc($time_check_result)) {
+//             if ($time_check_row['bid_count'] == 0) {
+//                 email_to_seller($auction_id);
+//                 return true;
+//             }
+//         }
+//     } else {
+//         // Display error message if query fails
+//         die('Error: ' . mysqli_error($connection));
+//     }
+
+// }
+
+function email_to_seller_bid_not_placed($auction_id)
 {
     global $connection;
-    $time_check_query = "SELECT count(bid.id) as bid_count
-                    FROM Auction auc
-                    LEFT JOIN Bid bid ON auc.id = bid.auction_id
-                    WHERE auc.id = $auction_id
-                    GROUP BY auc.id;";
-    $time_check_result = mysqli_query($connection, $time_check_query);
-    if ($time_check_result) {
-        while ($time_check_row = mysqli_fetch_assoc($time_check_result)) {
-            if ($time_check_row['bid_count'] == 0) {
-                email_to_seller($auction_id);
-                return true;
-            }
-        }
-    } else {
-        // Display error message if query fails
-        die('Error: ' . mysqli_error($connection));
+    $seller_data = getAuctionSellerData($auction_id);
+    if($seller_data[2]) {  // Only if the Seller has opted in for emails, do we proceed.
+        $auction_data = getAuctionDetailsById($auction_id);
     }
+    
 
-}
 
-function email_to_seller($auction_id)
-{
-    global $connection;
-    $seller_query = "SELECT * FROM auction WHERE auction.id = $auction_id";
+    $seller_query = "SELECT seller_id FROM auction WHERE auction.id = $auction_id";
     $seller_result = mysqli_query($connection, $seller_query);
     if ($seller_result) {
-        while ($check_all = mysqli_fetch_all($seller_result)) {
+
+        while ($check_all = mysqli_fetch_row($seller_result)) {
 
             foreach ($check_all as $index => $content) {
                 $auction_id = $content[0];
@@ -54,7 +63,7 @@ function email_to_seller($auction_id)
         }
     } else {
         // Display error message if query fails
-        die('Error: ' . mysqli_error($connection));
+        die('Seller Query Failed. Error: ' . mysqli_error($connection));
     }
 }
 
