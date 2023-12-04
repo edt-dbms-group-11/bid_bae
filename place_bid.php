@@ -1,6 +1,7 @@
 <?php
 include_once("database.php");
 include("database_functions.php");
+include_once("send_mail.php");
 
 $auction_id = test_input(($_POST["auction_id"]));
 $user_detail;
@@ -140,6 +141,10 @@ function updateHighestBidderBalances($auctionID)
   }
   mysqli_stmt_bind_param($stmt, "ddi", $new_unlocked_balance, $new_locked_balance, $highest_bidder_user_id);
   $update_balance_result = mysqli_stmt_execute($stmt);
+
+  // Email previous bidder they have been outbid
+  sendOutbidEmail($highest_bidder_details['display_name'], $highest_bidder_details['email'], $highest_bidder_details['opt_in_email'], $last_highest_bid, $auctionID);
+
   if ($update_balance_result === false) {
     die('Error executing the statement: ' . mysqli_error($connection));
   }

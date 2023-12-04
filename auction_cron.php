@@ -50,7 +50,7 @@ function checkIfBidPlaced($auctionID, $connection)
 function findAuctionWinner($connection, $auction_id)
 {
   error_log('Executing findAuctionWinner()');
-  $query = "SELECT B.user_id, U.display_name, U.balance, U.locked_balance, MAX(B.bid_price) AS winning_bid
+  $query = "SELECT B.user_id, U.display_name, U.email, U.opt_in_email, U.balance, U.locked_balance, MAX(B.bid_price) AS winning_bid
               FROM Bid B
               INNER JOIN User U ON B.user_id = U.id
               WHERE B.auction_id = $auction_id
@@ -66,6 +66,8 @@ function findAuctionWinner($connection, $auction_id)
       return [
         'user_id' => $row['user_id'],
         'display_name' => $row['display_name'],
+        'email' => $row['email'],
+        'email_opt_in' => $row['opt_in_email'],
         'winning_bid' => $row['winning_bid'],
         'balance' => $row['balance'],
         'locked_balance' => $row['locked_balance']
@@ -136,7 +138,7 @@ function updateAuctionStatusAndWinner($connection)
             }
 
             // Send email to both buyer and seller
-            winner_email($winner_info['user_id'], $winner_info['winning_bid'], $auction_id);
+            winner_email($winner_info['email'], $winner_info['email_opt_in'], $winner_info['display_name'], $winning_bid_amount, $auction_id);
 
           } else {
             // Update endprice 0 if no high bids
@@ -210,6 +212,7 @@ function main()
     findInitStateAuction($connection);
     // Fund and updates any auctions that have ended (i.e. end time has been reached)
     updateAuctionStatusAndWinner($connection);
+
     echo ("Sleeping for 5 seconds\n");
     sleep(5); // Sleep for 5 seconds after each execution.
   }

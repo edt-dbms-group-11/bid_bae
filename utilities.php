@@ -17,7 +17,7 @@ function sendmail($recipient, $subject, $content)
   $email->addTo($recipient);
 
   $email->addContent('text/html', $content);
-  $sendgrid = new \SendGrid('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'); //getenv('SENDGRID_API_KEY'));
+  $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
   try {
     $response = $sendgrid->send($email);
     printf("Response status: %d\n\n", $response->statusCode());
