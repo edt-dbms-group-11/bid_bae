@@ -16,10 +16,12 @@
             <label for="recs" class="sr-only">Generate recommendations from:</label>
             <p>Generate recommendations from:</p>
             <select class="form-control" id="recs" name="recs">
-              <option <?php echo (!isset($_GET['recs']) || $_GET['recs'] === 'bid') ? 'selected' : ''; ?> value="bid">
+              <option <?php echo (!isset($_GET['recs']) || $_GET['recs'] === 'mostbid') ? 'selected' : ''; ?> value="mostbid">
+                Most bid auctions</option>
+              <option <?php echo (isset($_GET['recs']) && $_GET['recs'] === 'bid') ? 'selected' : ''; ?> value="bid">
                 Your bids</option>
-              <option <?php echo (isset($_GET['recs']) && $_GET['recs'] === 'watchlist') ? 'selected' : ''; ?> value="watchlist">
-                Your watchlist</option>
+              <option <?php echo (isset($_GET['recs']) && $_GET['recs'] === 'watchlist') ? 'selected' : ''; ?>
+                value="watchlist"> Your watchlist</option>
             </select>
           </div>
         </div>
@@ -34,7 +36,7 @@
   $user_id = $_SESSION['id'];
 
   if (!isset($_GET['recs'])) {
-    $mode = 'bid';
+    $mode = 'mostbid';
   } else {
     $mode = $_GET['recs'];
   }

@@ -451,49 +451,63 @@ function getRecommedationsForUser($user_id, $mode, $page_num, $page_size)
 {
     global $connection;
     $offset_value = ($page_num - 1) * $page_size;
-
-    $drop_query = "DROP TABLE IF EXISTS user_$mode, other_$mode;";
-    $create_temp_table_one_query = "
-    CREATE TEMPORARY TABLE user_$mode (
-        user_id INT NOT NULL,
-        auction_id INT NOT NULL
-    )
-    SELECT user_id, auction_id
-    FROM $mode
-    WHERE user_id = $user_id;";
-    
-    $create_temp_table_two_query = "
-    CREATE TEMPORARY TABLE other_$mode (
-        user_id INT NOT NULL,
-        auction_id INT NOT NULL
-    )
-    SELECT user_id, auction_id
-    FROM $mode
-    WHERE user_id != $user_id
-    AND auction_id IN (SELECT auction_id FROM user_$mode);";
-
-    $get_recommendation_query = "
-    SELECT SQL_CALC_FOUND_ROWS auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id) as bid_count, auc.end_time
-    FROM Auction AS auc
-    LEFT JOIN Bid AS bid ON bid.auction_id = auc.id
-    JOIN (
-        SELECT DISTINCT($mode.auction_id)
+    if ($mode === 'bid' || $mode === 'watchlist') {
+        $drop_query = "DROP TABLE IF EXISTS user_$mode, other_$mode;";
+        $create_temp_table_one_query = "
+        CREATE TEMPORARY TABLE user_$mode (
+            user_id INT NOT NULL,
+            auction_id INT NOT NULL
+        )
+        SELECT user_id, auction_id
         FROM $mode
-        JOIN other_$mode
-        ON $mode.user_id=other_$mode.user_id
-        WHERE $mode.auction_id NOT IN (SELECT auction_id from user_$mode)
-        ) as recs
-    ON recs.auction_id = auc.id
-    GROUP BY auc.id
-    LIMIT $page_size
-    OFFSET $offset_value;";
+        WHERE user_id = $user_id;";
 
-    $connection->query($drop_query);
-    $connection->query($create_temp_table_one_query);
-    $connection->query($create_temp_table_two_query);
-    $result = $connection->query($get_recommendation_query);
-    
-    // mysqli_query($connection, $formatted_sql_query);
+        $create_temp_table_two_query = "
+        CREATE TEMPORARY TABLE other_$mode (
+            user_id INT NOT NULL,
+            auction_id INT NOT NULL
+        )
+        SELECT user_id, auction_id
+        FROM $mode
+        WHERE user_id != $user_id
+        AND auction_id IN (SELECT auction_id FROM user_$mode);";
+
+        $get_recommendation_query = "
+        SELECT SQL_CALC_FOUND_ROWS auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id) as bid_count, auc.end_time
+        FROM Auction AS auc
+        LEFT JOIN Bid AS bid ON bid.auction_id = auc.id
+        JOIN (
+            SELECT DISTINCT($mode.auction_id)
+            FROM $mode
+            JOIN other_$mode
+            ON $mode.user_id=other_$mode.user_id
+            WHERE $mode.auction_id NOT IN (SELECT auction_id from user_$mode)
+            ) as recs
+        ON recs.auction_id = auc.id
+        GROUP BY auc.id
+        LIMIT $page_size
+        OFFSET $offset_value;";
+
+        $connection->query($drop_query);
+        $connection->query($create_temp_table_one_query);
+        $connection->query($create_temp_table_two_query);
+        $result = $connection->query($get_recommendation_query);
+    } else if ($mode === 'mostbid') {
+        $get_recommendation_query = "
+        SELECT SQL_CALC_FOUND_ROWS auc.id, auc.title, auc.description, auc.current_price, COUNT(bid.id) as bid_count, auc.end_time
+        FROM Auction AS auc
+        INNER JOIN Bid AS bid ON bid.auction_id = auc.id
+        WHERE auc.id NOT IN (
+            SELECT auction.id FROM auction JOIN bid ON bid.auction_id = auction.id WHERE bid.user_id = $user_id
+        )
+        GROUP BY auc.id
+        ORDER BY bid_count DESC
+        LIMIT $page_size
+        OFFSET $offset_value;";
+        $result = $connection->query($get_recommendation_query);
+    } else {
+        die("Invalid recommendation mode selected");
+    }
     $auctions = array();
 
     if ($result->num_rows > 0) {
