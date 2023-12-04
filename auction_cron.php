@@ -158,8 +158,6 @@ function updateAuctionStatusAndWinner($connection)
             // Send email to seller about failed auction
             EmailSellerReservePriceNotMet($auction_id);
           }
-          // Set all items as unavailable under the auction 
-          updateItemStatusForAuction($connection, $auction_id);
         } else {
           die("Could not fetch winner info");
         }
@@ -172,6 +170,8 @@ function updateAuctionStatusAndWinner($connection)
           die('Error updating auction: ' . mysqli_error($connection));
         }
       }
+      // Set all items as unavailable under the auction 
+      updateItemStatusForAuction($connection, $auction_id);
     }
   } else {
     die('Error querying auctions: ' . mysqli_error($connection));
