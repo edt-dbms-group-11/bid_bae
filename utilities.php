@@ -1,14 +1,16 @@
 <?php
 require 'vendor/autoload.php';
 include_once("database.php");
+include_once("database_functions.php");
+
 use \SendGrid\Mail\Mail;
 
 function sendmail($recipient, $subject, $content)
 {
   $email = new Mail();
   $email->setFrom(
-    'bidbae.auction@gmail.com',
-    'Bid Bae'
+    'no-reply@bidbae.tech',
+    'BidBae Auctions'
   );
   $email->setSubject($subject);
   // Replace the email address and name with your recipient

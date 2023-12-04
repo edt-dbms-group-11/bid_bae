@@ -1,2 +1,2 @@
 web: heroku-php-apache2
-clock: php bid_winner_cron.php
+clock: php auction_cron.php
