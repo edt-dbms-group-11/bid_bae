@@ -69,7 +69,7 @@
         $title = $auction_info['title'] ?? null;
         $description = $auction_info['description'] ?? null;
         $current_price = $auction_info['current_price'] ?? null;
-        $end_time = new DateTime($auction_info['end_time']) ?? null;
+        $end_time = $auction_info['end_time'] ?? null;
 
         print_listing_li($auction_id, $title, $description, $current_price, $num_bids, $end_time);
     }

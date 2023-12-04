@@ -2,6 +2,7 @@
 <?php include_once("create_auction.php") ?>
 <?php include_once("database.php"); ?>
 <?php include_once("database_functions.php"); ?>
+<?php include_once("send_mail.php"); ?>
 
 <div class="container my-5">
 
@@ -32,6 +33,7 @@
     $startDate = $_POST['auctionStartDate'];
     $endDate = $_POST['auctionEndDate'];
     $selectedItems = explode(',', $_POST['selectedItems']);
+    $seller_id = $_SESSION['id'];
 
     if (!isset($reservePrice) || trim($reservePrice) === '') {
       // If reserve price is blank, assign the start price to it
@@ -80,6 +82,8 @@
               if (!$updateResult) {
                 handleGeneralError('');
               }
+
+              sendMailAfterAuctionCreation($auction_id, $title, $startDate);
 
               // All series success
               $_SESSION['success'] = 'auction_create_success';
